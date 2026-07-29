@@ -1,0 +1,938 @@
+<title>iPhone Fold — 概念设计</title>
+<style>
+  @font-face {
+    font-family: 'Display';
+    src: local('SF Pro Display'), local('PingFang SC'), local('Microsoft YaHei'), local('Helvetica Neue'), local('Arial');
+    font-weight: 100 900;
+  }
+
+  :root {
+    --bg: #0B0B10;
+    --bg-subtle: #141419;
+    --surface: #1C1C24;
+    --border: #2A2A35;
+    --titanium: #B8AFA6;
+    --titanium-dim: #78736D;
+    --text: #F0EDE8;
+    --text-secondary: #8E8B86;
+    --accent: #4B7BF5;
+    --accent-glow: rgba(75, 123, 245, 0.15);
+    --glass: rgba(255, 255, 255, 0.04);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --fold-shadow: rgba(0,0,0,0.6);
+    --phone-bezel: #1A1A1F;
+    --phone-screen: #000;
+    --phone-highlight: rgba(255,255,255,0.06);
+    --gradient-start: #2A1F4E;
+    --gradient-end: #0D1B3E;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #F7F5F0;
+      --bg-subtle: #EDEAE3;
+      --surface: #FFFFFF;
+      --border: #DDD9D2;
+      --titanium: #6B6560;
+      --titanium-dim: #9E9890;
+      --text: #1A1A1F;
+      --text-secondary: #6B6860;
+      --glass: rgba(0, 0, 0, 0.03);
+      --glass-border: rgba(0, 0, 0, 0.08);
+      --fold-shadow: rgba(0,0,0,0.15);
+      --phone-bezel: #2C2C30;
+      --phone-screen: #111;
+      --phone-highlight: rgba(255,255,255,0.1);
+      --gradient-start: #E8E0F5;
+      --gradient-end: #D5E0F5;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #F7F5F0;
+    --bg-subtle: #EDEAE3;
+    --surface: #FFFFFF;
+    --border: #DDD9D2;
+    --titanium: #6B6560;
+    --titanium-dim: #9E9890;
+    --text: #1A1A1F;
+    --text-secondary: #6B6860;
+    --glass: rgba(0, 0, 0, 0.03);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --fold-shadow: rgba(0,0,0,0.15);
+    --phone-bezel: #2C2C30;
+    --phone-screen: #111;
+    --phone-highlight: rgba(255,255,255,0.1);
+    --gradient-start: #E8E0F5;
+    --gradient-end: #D5E0F5;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0B0B10;
+    --bg-subtle: #141419;
+    --surface: #1C1C24;
+    --border: #2A2A35;
+    --titanium: #B8AFA6;
+    --titanium-dim: #78736D;
+    --text: #F0EDE8;
+    --text-secondary: #8E8B86;
+    --glass: rgba(255, 255, 255, 0.04);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --fold-shadow: rgba(0,0,0,0.6);
+    --phone-bezel: #1A1A1F;
+    --phone-screen: #000;
+    --phone-highlight: rgba(255,255,255,0.06);
+    --gradient-start: #2A1F4E;
+    --gradient-end: #0D1B3E;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Display', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--titanium-dim);
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+
+  .hero h1 {
+    font-size: clamp(48px, 10vw, 96px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    text-align: center;
+    line-height: 1.05;
+    margin-bottom: 20px;
+    background: linear-gradient(160deg, var(--text) 40%, var(--titanium));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: clamp(16px, 2.5vw, 22px);
+    color: var(--text-secondary);
+    text-align: center;
+    max-width: 480px;
+    line-height: 1.5;
+    font-weight: 400;
+    margin-bottom: 56px;
+  }
+
+  /* Phone Mockup */
+  .phone-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 48px;
+    margin-bottom: 32px;
+    perspective: 1200px;
+  }
+
+  .phone {
+    position: relative;
+    border-radius: 36px;
+    background: var(--phone-bezel);
+    box-shadow:
+      0 0 0 1px var(--glass-border),
+      0 40px 80px -20px rgba(0,0,0,0.5),
+      inset 0 1px 0 var(--phone-highlight);
+    flex-shrink: 0;
+  }
+
+  .phone-folded {
+    width: 160px;
+    height: 340px;
+    padding: 12px;
+  }
+
+  .phone-unfolded {
+    width: 280px;
+    height: 400px;
+    padding: 12px;
+    position: relative;
+  }
+
+  .phone-unfolded .fold-line {
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    left: 50%;
+    width: 2px;
+    transform: translateX(-50%);
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      var(--fold-shadow) 15%,
+      var(--fold-shadow) 85%,
+      transparent 100%
+    );
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .phone-unfolded .fold-highlight {
+    position: absolute;
+    top: 12px;
+    bottom: 12px;
+    left: calc(50% + 1px);
+    width: 1px;
+    transform: translateX(-50%);
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      var(--phone-highlight) 15%,
+      var(--phone-highlight) 85%,
+      transparent 100%
+    );
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 26px;
+    background: var(--phone-screen);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .screen-content {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(145deg, var(--gradient-start), var(--gradient-end));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    position: relative;
+  }
+
+  .screen-time {
+    font-size: 44px;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .screen-date {
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 4px;
+    font-weight: 400;
+  }
+
+  .screen-notch {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 72px;
+    height: 22px;
+    background: var(--phone-screen);
+    border-radius: 0 0 14px 14px;
+    z-index: 2;
+  }
+
+  .phone-folded .screen-notch {
+    width: 48px;
+    height: 18px;
+  }
+
+  .screen-icons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 24px;
+    width: 100%;
+    max-width: 220px;
+  }
+
+  .phone-folded .screen-icons {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-width: 120px;
+    margin-top: 16px;
+  }
+
+  .app-icon {
+    aspect-ratio: 1;
+    border-radius: 12px;
+    opacity: 0.85;
+  }
+
+  .phone-folded .app-icon { border-radius: 10px; }
+
+  .app-icon:nth-child(1) { background: linear-gradient(135deg, #34C759, #30B350); }
+  .app-icon:nth-child(2) { background: linear-gradient(135deg, #007AFF, #0066DD); }
+  .app-icon:nth-child(3) { background: linear-gradient(135deg, #FF9500, #FF8000); }
+  .app-icon:nth-child(4) { background: linear-gradient(135deg, #FF3B30, #E8352B); }
+  .app-icon:nth-child(5) { background: linear-gradient(135deg, #AF52DE, #9B47C5); }
+  .app-icon:nth-child(6) { background: linear-gradient(135deg, #5AC8FA, #4BB8E8); }
+  .app-icon:nth-child(7) { background: linear-gradient(135deg, #FFCC00, #F0C000); }
+  .app-icon:nth-child(8) { background: linear-gradient(135deg, #FF2D55, #E02850); }
+
+  .phone-label {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+  }
+
+  /* Toggle */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .toggle-btn {
+    padding: 8px 20px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--glass);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.02em;
+  }
+
+  .toggle-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .toggle-btn:hover:not(.active) {
+    border-color: var(--titanium-dim);
+    color: var(--text);
+  }
+
+  /* Sections */
+  .section {
+    padding: 100px 24px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .section h2 {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    text-wrap: balance;
+    margin-bottom: 24px;
+  }
+
+  .section-desc {
+    font-size: 17px;
+    color: var(--text-secondary);
+    max-width: 560px;
+    line-height: 1.65;
+    margin-bottom: 56px;
+  }
+
+  /* Specs Grid */
+  .specs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .spec-card {
+    background: var(--surface);
+    padding: 36px 32px;
+  }
+
+  .spec-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 20px;
+  }
+
+  .spec-icon.display { background: linear-gradient(135deg, #4B7BF5, #7B5AF5); }
+  .spec-icon.chip { background: linear-gradient(135deg, #34C759, #5AC8FA); }
+  .spec-icon.camera { background: linear-gradient(135deg, #FF9500, #FF3B30); }
+  .spec-icon.battery { background: linear-gradient(135deg, #30D158, #34C759); }
+  .spec-icon.hinge { background: linear-gradient(135deg, #AF52DE, #FF2D55); }
+  .spec-icon.os { background: linear-gradient(135deg, #007AFF, #5AC8FA); }
+
+  .spec-card h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+
+  .spec-value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--text), var(--titanium));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .spec-detail {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* Feature Highlights */
+  .features {
+    display: flex;
+    flex-direction: column;
+    gap: 64px;
+    margin-top: 48px;
+  }
+
+  .feature {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+
+  @media (max-width: 700px) {
+    .feature { grid-template-columns: 1fr; gap: 24px; }
+    .phone-container { flex-direction: column; align-items: center; gap: 32px; }
+    .phone-unfolded { width: 240px; height: 340px; }
+    .phone-folded { width: 130px; height: 280px; }
+  }
+
+  .feature-visual {
+    aspect-ratio: 4 / 3;
+    border-radius: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .feature-visual canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  .feature-text h3 {
+    font-size: clamp(22px, 3vw, 30px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+
+  .feature-text p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  .feature-tag {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 10px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--accent-glow);
+  }
+
+  /* Hinge animation */
+  .hinge-demo {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hinge-visual {
+    width: 120px;
+    height: 200px;
+    display: flex;
+    perspective: 800px;
+  }
+
+  .hinge-half {
+    width: 50%;
+    height: 100%;
+    border-radius: 8px;
+    position: relative;
+  }
+
+  .hinge-left {
+    background: linear-gradient(135deg, var(--titanium), var(--titanium-dim));
+    border-radius: 8px 0 0 8px;
+    transform-origin: right center;
+    animation: foldLeft 4s ease-in-out infinite;
+  }
+
+  .hinge-right {
+    background: linear-gradient(225deg, var(--titanium), var(--titanium-dim));
+    border-radius: 0 8px 8px 0;
+    transform-origin: left center;
+    animation: foldRight 4s ease-in-out infinite;
+  }
+
+  @keyframes foldLeft {
+    0%, 100% { transform: rotateY(0deg); }
+    40%, 60% { transform: rotateY(-35deg); }
+  }
+  @keyframes foldRight {
+    0%, 100% { transform: rotateY(0deg); }
+    40%, 60% { transform: rotateY(35deg); }
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 60px 24px 80px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .footer-note {
+    font-size: 11px;
+    color: var(--titanium-dim);
+    margin-top: 8px;
+  }
+
+  /* Color swatch row */
+  .color-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 32px 0 48px;
+    flex-wrap: wrap;
+  }
+
+  .color-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .color-swatch {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    transition: transform 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .color-swatch:hover { transform: scale(1.1); }
+
+  .color-swatch.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .color-name {
+    font-size: 11px;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hinge-left, .hinge-right { animation: none; }
+  }
+</style>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-eyebrow">Apple 概念产品</div>
+  <h1>iPhone Fold</h1>
+  <p class="hero-sub">展开无限可能。全新折叠屏形态，将大屏体验收入口袋。</p>
+
+  <div class="phone-container" id="phoneContainer">
+    <!-- Folded -->
+    <div class="phone phone-folded" id="phoneFolded">
+      <div class="screen">
+        <div class="screen-content">
+          <div class="screen-notch"></div>
+          <div class="screen-time" id="time1">09:41</div>
+          <div class="screen-date">7月29日 星期二</div>
+          <div class="screen-icons">
+            <div class="app-icon"></div>
+            <div class="app-icon"></div>
+            <div class="app-icon"></div>
+            <div class="app-icon"></div>
+            <div class="app-icon"></div>
+            <div class="app-icon"></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">折叠模式</div>
+    </div>
+
+    <!-- Unfolded -->
+    <div class="phone phone-unfolded" id="phoneUnfolded">
+      <div class="fold-line"></div>
+      <div class="fold-highlight"></div>
+      <div class="screen">
+        <div class="screen-content">
+          <div class="screen-notch"></div>
+          <div class="screen-time" id="time2">09:41</div>
+          <div class="screen-date">7月29日 星期二</div>
+          <div class="screen-icons">
+            <div class="app-icon"></div>
+            <div class="app-icon"></div>
+            <div class="app-icon"></div>
+            <div class="app-icon"></div>
+            <div class="app-icon"></div>
+            <div class="app-icon"></div>
+            <div class="app-icon"></div>
+            <div class="app-icon"></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">展开模式</div>
+    </div>
+  </div>
+
+  <div class="color-row" id="colorRow">
+    <div class="color-chip">
+      <div class="color-swatch selected" style="background: linear-gradient(135deg, #3B3B40, #1A1A1F);" data-bezel="#1A1A1F" data-name="深空黑"></div>
+      <span class="color-name">深空黑</span>
+    </div>
+    <div class="color-chip">
+      <div class="color-swatch" style="background: linear-gradient(135deg, #E8E3DB, #C5BFB5);" data-bezel="#C5BFB5" data-name="原色钛金属"></div>
+      <span class="color-name">原色钛金属</span>
+    </div>
+    <div class="color-chip">
+      <div class="color-swatch" style="background: linear-gradient(135deg, #4A5568, #2D3748);" data-bezel="#2D3748" data-name="沙漠钛金属"></div>
+      <span class="color-name">沙漠钛金属</span>
+    </div>
+    <div class="color-chip">
+      <div class="color-swatch" style="background: linear-gradient(135deg, #F5E6D0, #D4C4A8);" data-bezel="#D4C4A8" data-name="星光色"></div>
+      <span class="color-name">星光色</span>
+    </div>
+  </div>
+</section>
+
+<!-- Specs -->
+<section class="section">
+  <div class="section-label">技术规格</div>
+  <h2>每一处细节，<br>皆为折叠而生</h2>
+  <p class="section-desc">iPhone Fold 采用全新架构设计，从铰链工艺到芯片封装，每一个组件都围绕折叠体验重新构想。</p>
+
+  <div class="specs-grid">
+    <div class="spec-card">
+      <div class="spec-icon display">📱</div>
+      <h3>显示屏</h3>
+      <div class="spec-value">7.9″ / 4.8″</div>
+      <div class="spec-detail">展开时 7.9 英寸 LTPO OLED，折叠时外屏 4.8 英寸。120Hz ProMotion 自适应刷新率，峰值亮度 2600 尼特。</div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-icon chip">⚡</div>
+      <h3>芯片</h3>
+      <div class="spec-value">A20 Pro</div>
+      <div class="spec-detail">3nm 制程工艺，6 核 CPU + 6 核 GPU。支持硬件级光线追踪，Apple Intelligence 全面加速。</div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-icon camera">📷</div>
+      <h3>相机系统</h3>
+      <div class="spec-value">48MP 三摄</div>
+      <div class="spec-detail">4800 万像素融合主摄 + 超广角 + 5 倍光学变焦长焦。折叠状态下可用外屏取景自拍。</div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-icon battery">🔋</div>
+      <h3>电池</h3>
+      <div class="spec-value">5200 mAh</div>
+      <div class="spec-detail">双电芯设计，支持 45W 有线快充与 25W MagSafe 无线充电。全天候续航。</div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-icon hinge">🔗</div>
+      <h3>铰链</h3>
+      <div class="spec-value">水滴型微铰链</div>
+      <div class="spec-detail">锆合金微型铰链，20万次开合测试。水滴形弯折设计，几乎无折痕，支持多角度悬停。</div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-icon os">🍎</div>
+      <h3>系统</h3>
+      <div class="spec-value">iOS 20</div>
+      <div class="spec-detail">全新折叠适配模式。应用无缝切换双屏，支持分屏多任务、桌面级 Safari 和 Flex 模式。</div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section">
+  <div class="section-label">核心体验</div>
+  <h2>折叠，不是妥协</h2>
+  <p class="section-desc">当 Apple 的软硬件生态与折叠形态相遇，全新的交互范式自然涌现。</p>
+
+  <div class="features">
+    <div class="feature">
+      <div class="feature-visual">
+        <div class="hinge-demo">
+          <div class="hinge-visual">
+            <div class="hinge-half hinge-left"></div>
+            <div class="hinge-half hinge-right"></div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-text">
+        <span class="feature-tag">工程设计</span>
+        <h3>水滴型微铰链</h3>
+        <p>Apple 首创水滴形弯折铰链结构，屏幕在折叠处形成自然曲率，展开后折痕几乎不可见。锆合金材质确保 20 万次以上开合寿命，每一次开合都保持丝般顺滑的手感。支持 45°–155° 任意角度悬停，解锁 Flex 模式下的全新交互。</p>
+      </div>
+    </div>
+
+    <div class="feature" style="direction: rtl;">
+      <div class="feature-text" style="direction: ltr;">
+        <span class="feature-tag">多任务</span>
+        <h3>真正的桌面级分屏</h3>
+        <p>展开 7.9 英寸大屏，左右分屏运行两个完整应用——一边浏览网页一边做笔记，或在视频通话时查阅文档。iOS 20 的折叠适配引擎让每个应用都能智能调整布局，从折叠到展开无缝过渡，绝不丢失上下文。</p>
+      </div>
+      <div class="feature-visual" style="direction: ltr;">
+        <canvas id="splitCanvas" width="400" height="300"></canvas>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-visual">
+        <canvas id="cameraCanvas" width="400" height="300"></canvas>
+      </div>
+      <div class="feature-text">
+        <span class="feature-tag">影像</span>
+        <h3>外屏取景，高质自拍</h3>
+        <p>折叠状态下，外屏自动变为取景器，让你用 4800 万像素主摄拍出高质量自拍与视频通话画面。Flex 模式下半折手机即可化身桌面三脚架，解放双手录制 vlog 或进行延时摄影，ProRes 4K 视频录制从此不受限。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Dimensions -->
+<section class="section" style="text-align: center;">
+  <div class="section-label">尺寸与重量</div>
+  <h2>大屏幕，小身材</h2>
+  <p class="section-desc" style="margin: 0 auto 48px;">折叠后与 iPhone 16 Pro 相当，展开后接近 iPad mini 的视野。</p>
+
+  <div class="specs-grid" style="max-width: 640px; margin: 0 auto;">
+    <div class="spec-card" style="text-align: left;">
+      <h3>展开尺寸</h3>
+      <div class="spec-value">155 × 140 × 5.2mm</div>
+      <div class="spec-detail">薄至 5.2mm 的展开厚度，搭配陶瓷盾玻璃前面板。</div>
+    </div>
+    <div class="spec-card" style="text-align: left;">
+      <h3>折叠尺寸</h3>
+      <div class="spec-value">155 × 72 × 11.8mm</div>
+      <div class="spec-detail">折叠后紧凑便携，轻松滑入口袋。重量约 228g。</div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>iPhone Fold 概念设计 · 非 Apple 官方产品</p>
+  <p class="footer-note">本页面为概念设计展示，所有规格参数均为虚构。Apple、iPhone 是 Apple Inc. 的注册商标。</p>
+</footer>
+
+<script>
+  // Live clock
+  function updateTime() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const t = h + ':' + m;
+    document.getElementById('time1').textContent = t;
+    document.getElementById('time2').textContent = t;
+  }
+  updateTime();
+  setInterval(updateTime, 10000);
+
+  // Color picker
+  document.getElementById('colorRow').addEventListener('click', function(e) {
+    const swatch = e.target.closest('.color-swatch');
+    if (!swatch) return;
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+    swatch.classList.add('selected');
+    const bezel = swatch.dataset.bezel;
+    document.querySelectorAll('.phone').forEach(p => p.style.background = bezel);
+  });
+
+  // Split screen canvas
+  (function() {
+    const c = document.getElementById('splitCanvas');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Left app
+      ctx.fillStyle = '#1C3A5E';
+      ctx.fillRect(20, 20, W/2 - 30, H - 40);
+      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      ctx.fillRect(32, 36, W/2 - 54, 20);
+      for (let i = 0; i < 6; i++) {
+        ctx.fillStyle = 'rgba(255,255,255,' + (0.06 + Math.random()*0.04) + ')';
+        ctx.fillRect(32, 70 + i * 32, W/2 - 54, 22);
+      }
+
+      // Right app
+      ctx.fillStyle = '#3E1C4A';
+      ctx.fillRect(W/2 + 10, 20, W/2 - 30, H - 40);
+      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      ctx.fillRect(W/2 + 22, 36, W/2 - 54, 20);
+      for (let i = 0; i < 4; i++) {
+        ctx.fillStyle = 'rgba(255,255,255,' + (0.06 + Math.random()*0.04) + ')';
+        const bh = 36 + Math.random() * 16;
+        ctx.fillRect(W/2 + 22, 70 + i * 52, W/2 - 54, bh);
+      }
+
+      // Divider
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(W/2, 20);
+      ctx.lineTo(W/2, H - 20);
+      ctx.stroke();
+    }
+    draw();
+  })();
+
+  // Camera canvas
+  (function() {
+    const c = document.getElementById('cameraCanvas');
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Viewfinder bg
+      ctx.fillStyle = '#0A0A0F';
+      ctx.fillRect(0, 0, W, H);
+
+      // Grid lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = 0.5;
+      for (let i = 1; i < 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(W * i / 3, 20);
+        ctx.lineTo(W * i / 3, H - 20);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(20, H * i / 3);
+        ctx.lineTo(W - 20, H * i / 3);
+        ctx.stroke();
+      }
+
+      // Focus ring
+      const cx = W / 2, cy = H / 2;
+      ctx.strokeStyle = '#FFD60A';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cx - 50, cy - 50, 100, 100);
+
+      // Corner brackets
+      const sz = 14;
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      [[20, 20], [W-20, 20], [20, H-20], [W-20, H-20]].forEach(([x, y]) => {
+        const dx = x < W/2 ? 1 : -1;
+        const dy = y < H/2 ? 1 : -1;
+        ctx.beginPath();
+        ctx.moveTo(x + dx*sz, y);
+        ctx.lineTo(x, y);
+        ctx.lineTo(x, y + dy*sz);
+        ctx.stroke();
+      });
+
+      // Shutter UI
+      ctx.beginPath();
+      ctx.arc(W/2, H - 36, 16, 0, Math.PI * 2);
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(W/2, H - 36, 12, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff';
+      ctx.fill();
+
+      // "48MP" label
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.font = '11px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('48MP · ProRAW', W/2, 36);
+    }
+    draw();
+  })();
+</script>
