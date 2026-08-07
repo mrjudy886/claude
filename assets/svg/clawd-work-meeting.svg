@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -25 45 45" width="500" height="500">
+<defs><style>
+    .breathe-anim { transform-origin: 7.5px 13px; animation: breathe 3.2s infinite ease-in-out; }
+    .eyes-blink { transform-origin: 7.5px 9px; animation: eye-blink 4s infinite ease-in-out; }
+    @keyframes breathe { 0%, 100% { transform: scale(1, 1) translate(0, 0); } 50% { transform: scale(1.02, 0.98) translate(0, 0.5px); } }
+    @keyframes eye-blink { 0%, 10%, 100% { transform: scaleY(1); } 5% { transform: scaleY(0.1); } }
+    
+    .pointer-move { transform-origin: 0px 10px; animation: point 3s infinite ease-in-out; }
+    .chart-bar1 { animation: bar-grow1 3s infinite ease-in-out; }
+    .chart-bar2 { animation: bar-grow2 3s 0.3s infinite ease-in-out; }
+    .chart-bar3 { animation: bar-grow3 3s 0.6s infinite ease-in-out; }
+    @keyframes point { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-10deg) translateY(-1px); } }
+    @keyframes bar-grow1 { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }
+    @keyframes bar-grow2 { 0%, 100% { transform: scaleY(0.7); } 50% { transform: scaleY(1); } }
+    @keyframes bar-grow3 { 0%, 100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
+  
+  </style></defs>
+  <g id="shadow-js"><rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.5"/></g>
+  <g id="legs" fill="#DE886D">
+    <rect x="3" y="11" width="1" height="4"/><rect x="5" y="11" width="1" height="4"/>
+    <rect x="9" y="11" width="1" height="4"/><rect x="11" y="11" width="1" height="4"/>
+  </g>
+  <g id="body-js"><g class="breathe-anim">
+    <rect id="torso" x="2" y="6" width="11" height="7" fill="#DE886D"/>
+    <g class="pointer-move"><rect x="0" y="9" width="2" height="2" fill="#DE886D"/></g>
+    <rect x="13" y="9" width="2" height="2" fill="#DE886D"/>
+    <g id="eyes-js" fill="#000000"><g class="eyes-blink">
+      <rect x="4" y="8" width="1" height="2"/><rect x="10" y="8" width="1" height="2"/>
+    </g></g>
+  </g></g>
+  <g>
+    <rect x="-10" y="0" width="10" height="12" fill="white" stroke="#ccc" stroke-width="0.3"/>
+    <g transform="translate(-9, 11)">
+      <rect class="chart-bar1" x="1" y="0" width="2" height="-4" fill="#4488ff" transform-origin="2 0"/>
+      <rect class="chart-bar2" x="4" y="0" width="2" height="-6" fill="#44bb88" transform-origin="5 0"/>
+      <rect class="chart-bar3" x="7" y="0" width="2" height="-8" fill="#ff8844" transform-origin="8 0"/>
+    </g>
+  </g>
+</svg>

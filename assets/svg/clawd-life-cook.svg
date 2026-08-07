@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -25 45 45" width="500" height="500">
+<defs><style>
+    .breathe-anim { transform-origin: 7.5px 13px; animation: breathe 3.2s infinite ease-in-out; }
+    .eyes-blink { transform-origin: 7.5px 9px; animation: eye-blink 4s infinite ease-in-out; }
+    @keyframes breathe { 0%, 100% { transform: scale(1, 1) translate(0, 0); } 50% { transform: scale(1.02, 0.98) translate(0, 0.5px); } }
+    @keyframes eye-blink { 0%, 10%, 100% { transform: scaleY(1); } 5% { transform: scaleY(0.1); } }
+    
+    .stir { transform-origin: 1px 10px; animation: stir-pot 1.5s infinite ease-in-out; }
+    .cook-steam1 { animation: cook-steam-a 2s infinite ease-out; }
+    .cook-steam2 { animation: cook-steam-b 2s 0.6s infinite ease-out; }
+    .cook-steam3 { animation: cook-steam-c 2s 1.2s infinite ease-out; }
+    @keyframes stir-pot { 0%, 100% { transform: rotate(10deg); } 50% { transform: rotate(-10deg); } }
+    @keyframes cook-steam-a { 0% { opacity: 0.5; transform: translate(0,0); } 100% { opacity: 0; transform: translate(-1px,-6px); } }
+    @keyframes cook-steam-b { 0% { opacity: 0.5; transform: translate(0,0); } 100% { opacity: 0; transform: translate(1px,-7px); } }
+    @keyframes cook-steam-c { 0% { opacity: 0.5; transform: translate(0,0); } 100% { opacity: 0; transform: translate(0,-6px); } }
+  
+  </style></defs>
+  <g id="shadow-js"><rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.5"/></g>
+  <g id="legs" fill="#DE886D">
+    <rect x="3" y="11" width="1" height="4"/><rect x="5" y="11" width="1" height="4"/>
+    <rect x="9" y="11" width="1" height="4"/><rect x="11" y="11" width="1" height="4"/>
+  </g>
+  <g id="body-js"><g class="breathe-anim">
+    <rect id="torso" x="2" y="6" width="11" height="7" fill="#DE886D"/>
+    <g class="stir">
+      <rect x="0" y="9" width="2" height="2" fill="#DE886D"/>
+      <rect x="-2" y="7" width="0.5" height="5" fill="#8B6914"/>
+    </g>
+    <rect x="13" y="9" width="2" height="2" fill="#DE886D"/>
+    <g id="eyes-js" fill="#000000"><g class="eyes-blink">
+      <rect x="4" y="8" width="1" height="2"/><rect x="10" y="8" width="1" height="2"/>
+    </g></g>
+  </g></g>
+  <g>
+    <rect x="-7" y="8" width="6" height="5" fill="#666"/>
+    <rect x="-7.5" y="8" width="7" height="1" fill="#777"/>
+    <rect class="cook-steam1" x="-5" y="7" width="0.5" height="1" fill="#ccc"/>
+    <rect class="cook-steam2" x="-4" y="6" width="0.5" height="1" fill="#ccc"/>
+    <rect class="cook-steam3" x="-3" y="7" width="0.5" height="1" fill="#ccc"/>
+  </g>
+</svg>

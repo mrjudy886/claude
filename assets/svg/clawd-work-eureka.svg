@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -25 45 45" width="500" height="500">
+<defs><style>
+    .breathe-anim { transform-origin: 7.5px 13px; animation: breathe 3.2s infinite ease-in-out; }
+    .eyes-blink { transform-origin: 7.5px 9px; animation: eye-blink 4s infinite ease-in-out; }
+    @keyframes breathe { 0%, 100% { transform: scale(1, 1) translate(0, 0); } 50% { transform: scale(1.02, 0.98) translate(0, 0.5px); } }
+    @keyframes eye-blink { 0%, 10%, 100% { transform: scaleY(1); } 5% { transform: scaleY(0.1); } }
+    
+    .eureka-body { transform-origin: 7.5px 15px; animation: eureka-jump 3s infinite ease-in-out; }
+    .bulb { animation: bulb-appear 3s infinite ease-in-out; }
+    .bulb-glow { animation: glow-pulse 3s infinite ease-in-out; }
+    .arm-up-l { transform-origin: 1px 10px; animation: arm-eureka-l 3s infinite ease-in-out; }
+    .arm-up-r { transform-origin: 14px 10px; animation: arm-eureka-r 3s infinite ease-in-out; }
+    @keyframes eureka-jump { 0%, 100% { transform: translateY(0); } 40%, 60% { transform: translateY(-3px); } }
+    @keyframes bulb-appear { 0%, 20% { opacity: 0; transform: translateY(2px) scale(0.5); } 40%, 80% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; } }
+    @keyframes glow-pulse { 0%, 20% { opacity: 0; } 40%, 80% { opacity: 0.4; } 100% { opacity: 0; } }
+    @keyframes arm-eureka-l { 0%, 100% { transform: rotate(0); } 40%, 60% { transform: rotate(-70deg) translate(-1px,-3px); } }
+    @keyframes arm-eureka-r { 0%, 100% { transform: rotate(0); } 40%, 60% { transform: rotate(70deg) translate(1px,-3px); } }
+  
+  </style></defs>
+  <g id="shadow-js"><rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.5"/></g>
+  <g id="legs" fill="#DE886D">
+    <rect x="3" y="11" width="1" height="4"/><rect x="5" y="11" width="1" height="4"/>
+    <rect x="9" y="11" width="1" height="4"/><rect x="11" y="11" width="1" height="4"/>
+  </g>
+  <g class="eureka-body"><g id="body-js"><g class="breathe-anim">
+    <rect id="torso" x="2" y="6" width="11" height="7" fill="#DE886D"/>
+    <g class="arm-up-l"><rect x="0" y="9" width="2" height="2" fill="#DE886D"/></g>
+    <g class="arm-up-r"><rect x="13" y="9" width="2" height="2" fill="#DE886D"/></g>
+    <g id="eyes-js" fill="#000000"><g class="eyes-blink">
+      <rect x="4" y="8" width="1" height="2"/><rect x="10" y="8" width="1" height="2"/>
+    </g></g>
+  </g></g></g>
+  <g class="bulb">
+    <rect x="6" y="-5" width="3" height="3" fill="#FFD700" rx="0.5"/>
+    <rect x="7" y="-2" width="1" height="1" fill="#B8860B"/>
+    <rect class="bulb-glow" x="5" y="-6" width="5" height="5" fill="#FFD700" opacity="0.3" rx="1"/>
+  </g>
+</svg>

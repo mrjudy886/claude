@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -25 45 45" width="500" height="500">
+<defs><style>
+    .breathe-anim { transform-origin: 7.5px 13px; animation: breathe 3.2s infinite ease-in-out; }
+    .eyes-blink { transform-origin: 7.5px 9px; animation: eye-blink 4s infinite ease-in-out; }
+    @keyframes breathe { 0%, 100% { transform: scale(1, 1) translate(0, 0); } 50% { transform: scale(1.02, 0.98) translate(0, 0.5px); } }
+    @keyframes eye-blink { 0%, 10%, 100% { transform: scaleY(1); } 5% { transform: scaleY(0.1); } }
+    
+    .reach-up { transform-origin: 7.5px 13px; animation: reach 2.5s infinite ease-in-out; }
+    .arm-pick { transform-origin: 14px 10px; animation: pick-up 2.5s infinite ease-in-out; }
+    .fruit { animation: fruit-picked 2.5s infinite ease-in-out; }
+    @keyframes reach { 0%, 100% { transform: translateY(0) scaleY(1); } 40%, 60% { transform: translateY(-1px) scaleY(1.03); } }
+    @keyframes pick-up { 0%, 30% { transform: rotate(-60deg) translate(0,-5px); } 50%, 100% { transform: rotate(-20deg) translate(0,-2px); } }
+    @keyframes fruit-picked { 0%, 30% { transform: translate(0,0); opacity: 1; } 50% { transform: translate(2px,4px); opacity: 1; } 70%, 100% { transform: translate(2px,4px); opacity: 0; } }
+  
+  </style></defs>
+  <g id="shadow-js"><rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.5"/></g>
+  <g id="legs" fill="#DE886D">
+    <rect x="3" y="11" width="1" height="4"/><rect x="5" y="11" width="1" height="4"/>
+    <rect x="9" y="11" width="1" height="4"/><rect x="11" y="11" width="1" height="4"/>
+  </g>
+  <g class="reach-up"><g id="body-js"><g class="breathe-anim">
+    <rect id="torso" x="2" y="6" width="11" height="7" fill="#DE886D"/>
+    <rect x="0" y="9" width="2" height="2" fill="#DE886D"/>
+    <g class="arm-pick"><rect x="13" y="9" width="2" height="2" fill="#DE886D"/></g>
+    <g id="eyes-js" fill="#000000"><g class="eyes-blink">
+      <rect x="4" y="7" width="1" height="2"/><rect x="10" y="7" width="1" height="2"/>
+    </g></g>
+  </g></g></g>
+  <rect x="10" y="-8" width="10" height="3" fill="#44aa44" rx="0.5"/>
+  <rect x="14" y="-5" width="1" height="8" fill="#886633"/>
+  <g class="fruit">
+    <rect x="16" y="-4" width="2" height="2" fill="#ff4444" rx="0.3"/>
+    <rect x="16.5" y="-4.5" width="1" height="0.5" fill="#44aa44"/>
+  </g>
+</svg>

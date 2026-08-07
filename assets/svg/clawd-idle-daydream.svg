@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -25 45 45" width="500" height="500">
+<defs><style>
+    .breathe-anim { transform-origin: 7.5px 13px; animation: breathe 3.2s infinite ease-in-out; }
+    .eyes-blink { transform-origin: 7.5px 9px; animation: eye-blink 4s infinite ease-in-out; }
+    @keyframes breathe { 0%, 100% { transform: scale(1, 1) translate(0, 0); } 50% { transform: scale(1.02, 0.98) translate(0, 0.5px); } }
+    @keyframes eye-blink { 0%, 10%, 100% { transform: scaleY(1); } 5% { transform: scaleY(0.1); } }
+    
+    .eyes-up { transform-origin: 7.5px 9px; animation: look-up 5s infinite ease-in-out; }
+    .thought-cloud { animation: cloud-float 3s infinite ease-in-out; }
+    .star1 { animation: star-twinkle 1.5s infinite ease-in-out; }
+    .star2 { animation: star-twinkle 1.5s 0.5s infinite ease-in-out; }
+    .star3 { animation: star-twinkle 1.5s 1s infinite ease-in-out; }
+    @keyframes look-up { 0%, 100% { transform: translateY(0); } 30%, 70% { transform: translateY(-1px); } }
+    @keyframes cloud-float { 0%, 100% { transform: translateY(0); opacity: 0.8; } 50% { transform: translateY(-1px); opacity: 1; } }
+    @keyframes star-twinkle { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+  
+  </style></defs>
+  <g id="shadow-js"><rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.5"/></g>
+  <g id="legs" fill="#DE886D">
+    <rect x="3" y="11" width="1" height="4"/><rect x="5" y="11" width="1" height="4"/>
+    <rect x="9" y="11" width="1" height="4"/><rect x="11" y="11" width="1" height="4"/>
+  </g>
+  <g id="body-js"><g class="breathe-anim">
+    <rect id="torso" x="2" y="6" width="11" height="7" fill="#DE886D"/>
+    <rect x="0" y="9" width="2" height="2" fill="#DE886D"/>
+    <rect x="13" y="9" width="2" height="2" fill="#DE886D"/>
+    <g id="eyes-js" fill="#000000"><g class="eyes-up">
+      <rect x="4" y="7" width="1" height="2"/><rect x="10" y="7" width="1" height="2"/>
+    </g></g>
+  </g></g>
+  <g class="thought-cloud">
+    <rect x="4" y="-8" width="8" height="5" fill="white" opacity="0.7" rx="1"/>
+    <rect x="6" y="-3" width="1" height="1" fill="white" opacity="0.5"/>
+    <rect x="5" y="-1" width="1" height="1" fill="white" opacity="0.3"/>
+    <rect class="star1" x="5" y="-7" width="1.5" height="1.5" fill="#FFD700"/>
+    <rect class="star2" x="8" y="-6" width="1" height="1" fill="#FFD700"/>
+    <rect class="star3" x="6.5" y="-5" width="1.2" height="1.2" fill="#FFD700"/>
+  </g>
+</svg>

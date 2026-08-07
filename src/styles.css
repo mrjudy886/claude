@@ -75,9 +75,20 @@ html, body {
   border-radius: 8px;
   padding: 4px 0;
   min-width: 140px;
+  max-height: 400px;
+  overflow-y: auto;
   z-index: 9999;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.context-menu::-webkit-scrollbar {
+  width: 4px;
+}
+
+.context-menu::-webkit-scrollbar-thumb {
+  background: rgba(137, 180, 250, 0.3);
+  border-radius: 2px;
 }
 
 .context-menu.hidden {
@@ -99,6 +110,17 @@ html, body {
 
 .menu-item.active {
   color: #89b4fa;
+}
+
+.menu-item.menu-header {
+  color: #f9e2af;
+  font-weight: bold;
+  text-align: center;
+  background: rgba(249, 226, 175, 0.1);
+}
+
+.menu-item.menu-header:hover {
+  background: rgba(249, 226, 175, 0.25);
 }
 
 .menu-separator {

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -25 45 45" width="500" height="500">
+<defs><style>
+    .breathe-anim { transform-origin: 7.5px 13px; animation: breathe 3.2s infinite ease-in-out; }
+    .eyes-blink { transform-origin: 7.5px 9px; animation: eye-blink 4s infinite ease-in-out; }
+    @keyframes breathe { 0%, 100% { transform: scale(1, 1) translate(0, 0); } 50% { transform: scale(1.02, 0.98) translate(0, 0.5px); } }
+    @keyframes eye-blink { 0%, 10%, 100% { transform: scaleY(1); } 5% { transform: scaleY(0.1); } }
+    
+    .hold-camera { transform-origin: 7.5px 10px; animation: camera-hold 4s infinite ease-in-out; }
+    .flash { animation: flash-blink 4s infinite ease-out; }
+    .click-body { animation: click-snap 4s infinite ease-in-out; }
+    @keyframes camera-hold { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(0.5px); } }
+    @keyframes flash-blink { 0%, 70%, 80%, 100% { opacity: 0; } 75% { opacity: 1; } }
+    @keyframes click-snap { 0%, 70%, 80%, 100% { transform: scale(1); } 75% { transform: scale(0.97); } }
+  
+  </style></defs>
+  <g id="shadow-js"><rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.5"/></g>
+  <g id="legs" fill="#DE886D">
+    <rect x="3" y="11" width="1" height="4"/><rect x="5" y="11" width="1" height="4"/>
+    <rect x="9" y="11" width="1" height="4"/><rect x="11" y="11" width="1" height="4"/>
+  </g>
+  <g class="click-body"><g id="body-js"><g class="breathe-anim">
+    <rect id="torso" x="2" y="6" width="11" height="7" fill="#DE886D"/>
+    <rect x="0" y="9" width="2" height="2" fill="#DE886D"/>
+    <rect x="13" y="9" width="2" height="2" fill="#DE886D"/>
+    <g id="eyes-js" fill="#000000"><g class="eyes-blink">
+      <rect x="4" y="8" width="1" height="2"/><rect x="10" y="8" width="1" height="2"/>
+    </g></g>
+  </g></g></g>
+  <g class="hold-camera">
+    <rect x="16" y="7" width="5" height="3.5" fill="#333" rx="0.3"/>
+    <rect x="17.5" y="7.5" width="2" height="2" fill="#555" rx="0.3"/>
+    <circle cx="18.5" cy="8.5" r="0.7" fill="#88aaff"/>
+    <rect x="19" y="6.5" width="1" height="0.8" fill="#444"/>
+  </g>
+  <rect class="flash" x="-12" y="-10" width="40" height="35" fill="white" opacity="0"/>
+</svg>

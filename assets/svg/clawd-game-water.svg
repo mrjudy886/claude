@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -25 45 45" width="500" height="500">
+<defs><style>
+    .breathe-anim { transform-origin: 7.5px 13px; animation: breathe 3.2s infinite ease-in-out; }
+    .eyes-blink { transform-origin: 7.5px 9px; animation: eye-blink 4s infinite ease-in-out; }
+    @keyframes breathe { 0%, 100% { transform: scale(1, 1) translate(0, 0); } 50% { transform: scale(1.02, 0.98) translate(0, 0.5px); } }
+    @keyframes eye-blink { 0%, 10%, 100% { transform: scaleY(1); } 5% { transform: scaleY(0.1); } }
+    
+    .water-arm { transform-origin: 14px 10px; animation: water-tilt 3s infinite ease-in-out; }
+    .water-drop1 { animation: w-drop1 1s infinite linear; }
+    .water-drop2 { animation: w-drop2 1s 0.3s infinite linear; }
+    .water-drop3 { animation: w-drop3 1s 0.6s infinite linear; }
+    .sprout { animation: sprout-grow 6s infinite ease-in-out; }
+    @keyframes water-tilt { 0%, 100% { transform: rotate(-25deg) translate(-1px,-3px); } 50% { transform: rotate(-30deg) translate(-2px,-3px); } }
+    @keyframes w-drop1 { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(5px); } }
+    @keyframes w-drop2 { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(5px); } }
+    @keyframes w-drop3 { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(5px); } }
+    @keyframes sprout-grow { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.15); } }
+  
+  </style></defs>
+  <g id="shadow-js"><rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.5"/></g>
+  <g id="legs" fill="#DE886D">
+    <rect x="3" y="11" width="1" height="4"/><rect x="5" y="11" width="1" height="4"/>
+    <rect x="9" y="11" width="1" height="4"/><rect x="11" y="11" width="1" height="4"/>
+  </g>
+  <g id="body-js"><g class="breathe-anim">
+    <rect id="torso" x="2" y="6" width="11" height="7" fill="#DE886D"/>
+    <rect x="0" y="9" width="2" height="2" fill="#DE886D"/>
+    <g class="water-arm">
+      <rect x="13" y="9" width="2" height="2" fill="#DE886D"/>
+      <rect x="15" y="6" width="3" height="3" fill="#888"/>
+      <rect x="18" y="6" width="1" height="0.5" fill="#888"/>
+    </g>
+    <g id="eyes-js" fill="#000000"><g class="eyes-blink">
+      <rect x="4" y="8" width="1" height="2"/><rect x="10" y="8" width="1" height="2"/>
+    </g></g>
+  </g></g>
+  <g class="sprout" transform="translate(19,10)">
+    <rect x="0" y="3" width="3" height="2" fill="#8B6914"/>
+    <rect x="1" y="1" width="1" height="2" fill="#44aa44"/>
+    <rect x="0" y="0" width="1" height="1.5" fill="#66cc66"/>
+    <rect x="2" y="0" width="1" height="1.5" fill="#66cc66"/>
+  </g>
+  <g fill="#66bbff" opacity="0.6">
+    <rect class="water-drop1" x="18" y="8" width="0.5" height="1"/>
+    <rect class="water-drop2" x="19" y="8" width="0.5" height="1"/>
+    <rect class="water-drop3" x="18.5" y="8" width="0.5" height="1"/>
+  </g>
+</svg>

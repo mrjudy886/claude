@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -25 45 45" width="500" height="500">
+<defs><style>
+    .breathe-anim { transform-origin: 7.5px 13px; animation: breathe 3.2s infinite ease-in-out; }
+    .eyes-blink { transform-origin: 7.5px 9px; animation: eye-blink 4s infinite ease-in-out; }
+    @keyframes breathe { 0%, 100% { transform: scale(1, 1) translate(0, 0); } 50% { transform: scale(1.02, 0.98) translate(0, 0.5px); } }
+    @keyframes eye-blink { 0%, 10%, 100% { transform: scaleY(1); } 5% { transform: scaleY(0.1); } }
+    
+    .feed-arm { transform-origin: 14px 10px; animation: feed-hold 2s infinite ease-in-out; }
+    .food-item { animation: food-shrink 2s infinite ease-in-out; }
+    .feed-heart1 { animation: feed-heart-a 2s infinite ease-out; }
+    .feed-heart2 { animation: feed-heart-b 2s 0.7s infinite ease-out; }
+    .feed-heart3 { animation: feed-heart-c 2s 1.4s infinite ease-out; }
+    @keyframes feed-hold { 0%, 100% { transform: rotate(-15deg) translate(-1px,-2px); } 50% { transform: rotate(-20deg) translate(-1px,-2.5px); } }
+    @keyframes food-shrink { 0% { transform: scale(1); opacity: 1; } 80% { transform: scale(0.5); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes feed-heart-a { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(-2px,-5px); } }
+    @keyframes feed-heart-b { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(3px,-6px); } }
+    @keyframes feed-heart-c { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(0,-5px); } }
+  
+  </style></defs>
+  <g id="shadow-js"><rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.5"/></g>
+  <g id="legs" fill="#DE886D">
+    <rect x="3" y="11" width="1" height="4"/><rect x="5" y="11" width="1" height="4"/>
+    <rect x="9" y="11" width="1" height="4"/><rect x="11" y="11" width="1" height="4"/>
+  </g>
+  <g id="body-js"><g class="breathe-anim">
+    <rect id="torso" x="2" y="6" width="11" height="7" fill="#DE886D"/>
+    <rect x="0" y="9" width="2" height="2" fill="#DE886D"/>
+    <g class="feed-arm">
+      <rect x="13" y="9" width="2" height="2" fill="#DE886D"/>
+      <g class="food-item">
+        <rect x="14" y="7" width="2" height="2" fill="#ff8844" rx="0.3"/>
+      </g>
+    </g>
+    <g id="eyes-js" fill="#000000"><g class="eyes-blink">
+      <rect x="4" y="8" width="1" height="2"/><rect x="10" y="8" width="1" height="2"/>
+    </g></g>
+  </g></g>
+  <g fill="#ff4488">
+    <rect class="feed-heart1" x="5" y="3" width="1.5" height="1.5" rx="0.3"/>
+    <rect class="feed-heart2" x="10" y="2" width="1.5" height="1.5" rx="0.3"/>
+    <rect class="feed-heart3" x="7" y="1" width="1.5" height="1.5" rx="0.3"/>
+  </g>
+</svg>

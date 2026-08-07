@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -25 45 45" width="500" height="500">
+<defs><style>
+    .breathe-anim { transform-origin: 7.5px 13px; animation: breathe 3.2s infinite ease-in-out; }
+    .eyes-blink { transform-origin: 7.5px 9px; animation: eye-blink 4s infinite ease-in-out; }
+    @keyframes breathe { 0%, 100% { transform: scale(1, 1) translate(0, 0); } 50% { transform: scale(1.02, 0.98) translate(0, 0.5px); } }
+    @keyframes eye-blink { 0%, 10%, 100% { transform: scaleY(1); } 5% { transform: scaleY(0.1); } }
+    
+    .pen-move { transform-origin: 14px 10px; animation: write-stroke 1.5s infinite ease-in-out; }
+    .text-line1 { animation: line-draw1 3s infinite ease-in-out; }
+    .text-line2 { animation: line-draw2 3s 1s infinite ease-in-out; }
+    .text-line3 { animation: line-draw3 3s 2s infinite ease-in-out; }
+    @keyframes write-stroke { 0%, 100% { transform: rotate(-15deg) translate(-2px,-3px); } 50% { transform: rotate(-20deg) translate(-4px,-3px); } }
+    @keyframes line-draw1 { 0% { width: 0; } 33%, 100% { width: 4; } }
+    @keyframes line-draw2 { 0%, 33% { width: 0; } 66%, 100% { width: 5; } }
+    @keyframes line-draw3 { 0%, 66% { width: 0; } 100% { width: 3; } }
+  
+  </style></defs>
+  <g id="shadow-js"><rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.5"/></g>
+  <g id="legs" fill="#DE886D">
+    <rect x="3" y="11" width="1" height="4"/><rect x="5" y="11" width="1" height="4"/>
+    <rect x="9" y="11" width="1" height="4"/><rect x="11" y="11" width="1" height="4"/>
+  </g>
+  <g id="body-js"><g class="breathe-anim">
+    <rect id="torso" x="2" y="6" width="11" height="7" fill="#DE886D"/>
+    <rect x="0" y="9" width="2" height="2" fill="#DE886D"/>
+    <g class="pen-move">
+      <rect x="13" y="9" width="2" height="2" fill="#DE886D"/>
+      <rect x="15" y="8" width="0.4" height="3" fill="#222" transform="rotate(-20,15,9)"/>
+    </g>
+    <g id="eyes-js" fill="#000000"><g class="eyes-blink">
+      <rect x="4" y="8" width="1" height="2"/><rect x="10" y="8" width="1" height="2"/>
+    </g></g>
+  </g></g>
+  <g>
+    <rect x="17" y="4" width="8" height="10" fill="#fffff0" stroke="#ccc" stroke-width="0.2"/>
+    <rect class="text-line1" x="18" y="5.5" width="4" height="0.4" fill="#333"/>
+    <rect class="text-line2" x="18" y="7" width="5" height="0.4" fill="#333"/>
+    <rect class="text-line3" x="18" y="8.5" width="3" height="0.4" fill="#333"/>
+  </g>
+</svg>

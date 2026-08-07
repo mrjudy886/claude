@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -25 45 45" width="500" height="500">
+<defs><style>
+    .breathe-anim { transform-origin: 7.5px 13px; animation: breathe 3.2s infinite ease-in-out; }
+    .eyes-blink { transform-origin: 7.5px 9px; animation: eye-blink 4s infinite ease-in-out; }
+    @keyframes breathe { 0%, 100% { transform: scale(1, 1) translate(0, 0); } 50% { transform: scale(1.02, 0.98) translate(0, 0.5px); } }
+    @keyframes eye-blink { 0%, 10%, 100% { transform: scaleY(1); } 5% { transform: scaleY(0.1); } }
+    
+    .levelup-body { transform-origin: 7.5px 15px; animation: lvl-grow 3s infinite ease-in-out; }
+    .arrow1 { animation: arrow-up1 2s infinite ease-out; }
+    .arrow2 { animation: arrow-up2 2s 0.5s infinite ease-out; }
+    .arrow3 { animation: arrow-up3 2s 1s infinite ease-out; }
+    .lvl-sparkle1 { animation: lvl-sp1 1.5s infinite ease-in-out; }
+    .lvl-sparkle2 { animation: lvl-sp2 1.5s 0.5s infinite ease-in-out; }
+    .lvl-sparkle3 { animation: lvl-sp3 1.5s 1s infinite ease-in-out; }
+    @keyframes lvl-grow { 0%, 100% { transform: scale(1); } 40%, 60% { transform: scale(1.1); } }
+    @keyframes arrow-up1 { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-10px); } }
+    @keyframes arrow-up2 { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-10px); } }
+    @keyframes arrow-up3 { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-10px); } }
+    @keyframes lvl-sp1 { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+    @keyframes lvl-sp2 { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+    @keyframes lvl-sp3 { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+  
+  </style></defs>
+  <g id="shadow-js"><rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.5"/></g>
+  <g id="legs" fill="#DE886D">
+    <rect x="3" y="11" width="1" height="4"/><rect x="5" y="11" width="1" height="4"/>
+    <rect x="9" y="11" width="1" height="4"/><rect x="11" y="11" width="1" height="4"/>
+  </g>
+  <g class="levelup-body"><g id="body-js"><g class="breathe-anim">
+    <rect id="torso" x="2" y="6" width="11" height="7" fill="#DE886D"/>
+    <rect x="0" y="9" width="2" height="2" fill="#DE886D"/>
+    <rect x="13" y="9" width="2" height="2" fill="#DE886D"/>
+    <g id="eyes-js" fill="#000000"><g class="eyes-blink">
+      <rect x="4" y="8" width="1" height="2"/><rect x="10" y="8" width="1" height="2"/>
+    </g></g>
+  </g></g></g>
+  <g fill="#44ff88">
+    <polygon class="arrow1" points="3,2 5,2 4,-1"/>
+    <polygon class="arrow2" points="7,1 9,1 8,-2"/>
+    <polygon class="arrow3" points="11,2 13,2 12,-1"/>
+  </g>
+  <g fill="#FFD700">
+    <rect class="lvl-sparkle1" x="0" y="5" width="1" height="1"/>
+    <rect class="lvl-sparkle2" x="14" y="4" width="1" height="1"/>
+    <rect class="lvl-sparkle3" x="7" y="2" width="1" height="1"/>
+  </g>
+</svg>

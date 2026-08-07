@@ -29,26 +29,146 @@ const STATE_FILES = {
   "idle-look": "clawd-idle-look.svg",
   "idle-bubble": "clawd-idle-bubble.svg",
   "idle-reading": "clawd-idle-reading.svg",
+
+  "idle-stretch": "clawd-idle-stretch.svg",
+  "idle-phone": "clawd-idle-phone.svg",
+  "idle-whistle": "clawd-idle-whistle.svg",
+  "idle-daydream": "clawd-idle-daydream.svg",
+  "idle-bored": "clawd-idle-bored.svg",
+  "idle-snack": "clawd-idle-snack.svg",
+  "idle-wave": "clawd-idle-wave.svg",
+  "idle-sit": "clawd-idle-sit.svg",
+  "idle-nap-head": "clawd-idle-nap-head.svg",
+  "idle-curious": "clawd-idle-curious.svg",
+
+  "work-coding": "clawd-work-coding.svg",
+  "work-debug": "clawd-work-debug.svg",
+  "work-eureka": "clawd-work-eureka.svg",
+  "work-meeting": "clawd-work-meeting.svg",
+  "work-study": "clawd-work-study.svg",
+  "work-paint": "clawd-work-paint.svg",
+  "work-write": "clawd-work-write.svg",
+  "work-hammer": "clawd-work-hammer.svg",
+  "work-science": "clawd-work-science.svg",
+  "work-photo": "clawd-work-photo.svg",
+
+  "play-dance": "clawd-play-dance.svg",
+  "play-jump": "clawd-play-jump.svg",
+  "play-ball": "clawd-play-ball.svg",
+  "play-game": "clawd-play-game.svg",
+  "play-music": "clawd-play-music.svg",
+  "play-sing": "clawd-play-sing.svg",
+  "play-skateboard": "clawd-play-skateboard.svg",
+  "play-kite": "clawd-play-kite.svg",
+  "play-balloon": "clawd-play-balloon.svg",
+  "play-hula": "clawd-play-hula.svg",
+
+  "life-eat": "clawd-life-eat.svg",
+  "life-drink": "clawd-life-drink.svg",
+  "life-cook": "clawd-life-cook.svg",
+  "life-clean": "clawd-life-clean.svg",
+  "life-exercise": "clawd-life-exercise.svg",
+  "life-run": "clawd-life-run.svg",
+  "life-shower": "clawd-life-shower.svg",
+  "life-dress": "clawd-life-dress.svg",
+  "life-garden": "clawd-life-garden.svg",
+  "life-fish": "clawd-life-fish.svg",
+
+  "emotion-love": "clawd-emotion-love.svg",
+  "emotion-angry": "clawd-emotion-angry.svg",
+  "emotion-confused": "clawd-emotion-confused.svg",
+  "emotion-excited": "clawd-emotion-excited.svg",
+  "emotion-scared": "clawd-emotion-scared.svg",
+  "emotion-proud": "clawd-emotion-proud.svg",
+  "emotion-shy": "clawd-emotion-shy.svg",
+  "emotion-cry": "clawd-emotion-cry.svg",
+  "emotion-laugh": "clawd-emotion-laugh.svg",
+  "emotion-surprise": "clawd-emotion-surprise.svg",
+
+  "social-hello": "clawd-social-hello.svg",
+  "social-bye": "clawd-social-bye.svg",
+  "social-highfive": "clawd-social-highfive.svg",
+  "social-hug": "clawd-social-hug.svg",
+  "social-peek": "clawd-social-peek.svg",
+  "social-hide": "clawd-social-hide.svg",
+  "social-point": "clawd-social-point.svg",
+  "social-clap": "clawd-social-clap.svg",
+  "social-thumbsup": "clawd-social-thumbsup.svg",
+  "social-bow": "clawd-social-bow.svg",
+
+  "game-shop": "clawd-game-shop.svg",
+  "game-harvest": "clawd-game-harvest.svg",
+  "game-plant": "clawd-game-plant.svg",
+  "game-water": "clawd-game-water.svg",
+  "game-coins": "clawd-game-coins.svg",
+  "game-craft": "clawd-game-craft.svg",
+  "game-treasure": "clawd-game-treasure.svg",
+  "game-levelup": "clawd-game-levelup.svg",
+  "game-feed": "clawd-game-feed.svg",
+  "game-sleep-dream": "clawd-game-sleep-dream.svg",
 };
 
 const IDLE_ANIMATIONS = [
   { file: "idle-look", duration: 6500 },
   { file: "idle-bubble", duration: 13500 },
   { file: "idle-reading", duration: 14000 },
+  { file: "idle-stretch", duration: 5000 },
+  { file: "idle-phone", duration: 8000 },
+  { file: "idle-whistle", duration: 7000 },
+  { file: "idle-daydream", duration: 10000 },
+  { file: "idle-bored", duration: 6000 },
+  { file: "idle-snack", duration: 5000 },
+  { file: "idle-wave", duration: 4000 },
+  { file: "idle-sit", duration: 12000 },
+  { file: "idle-nap-head", duration: 6000 },
+  { file: "idle-curious", duration: 5000 },
 ];
 
 const AUTO_MODE_STATES = [
-  { state: "idle", weight: 30, minDuration: 8000, maxDuration: 20000 },
-  { state: "thinking", weight: 15, minDuration: 5000, maxDuration: 15000 },
-  { state: "working", weight: 15, minDuration: 5000, maxDuration: 20000 },
-  { state: "building", weight: 8, minDuration: 5000, maxDuration: 12000 },
-  { state: "juggling", weight: 5, minDuration: 5000, maxDuration: 10000 },
-  { state: "groove", weight: 5, minDuration: 5000, maxDuration: 10000 },
-  { state: "sweeping", weight: 5, minDuration: 5500, maxDuration: 8000 },
-  { state: "carrying", weight: 5, minDuration: 3000, maxDuration: 6000 },
-  { state: "happy", weight: 8, minDuration: 4000, maxDuration: 6000 },
-  { state: "notification", weight: 4, minDuration: 5000, maxDuration: 5000 },
-  { state: "roam", weight: 10, minDuration: 4000, maxDuration: 10000 },
+  { state: "idle", weight: 20, minDuration: 8000, maxDuration: 20000 },
+  { state: "thinking", weight: 8, minDuration: 5000, maxDuration: 15000 },
+  { state: "working", weight: 8, minDuration: 5000, maxDuration: 20000 },
+  { state: "building", weight: 5, minDuration: 5000, maxDuration: 12000 },
+  { state: "juggling", weight: 3, minDuration: 5000, maxDuration: 10000 },
+  { state: "groove", weight: 4, minDuration: 5000, maxDuration: 10000 },
+  { state: "sweeping", weight: 3, minDuration: 5500, maxDuration: 8000 },
+  { state: "carrying", weight: 3, minDuration: 3000, maxDuration: 6000 },
+  { state: "happy", weight: 5, minDuration: 4000, maxDuration: 6000 },
+  { state: "notification", weight: 2, minDuration: 5000, maxDuration: 5000 },
+  { state: "roam", weight: 8, minDuration: 4000, maxDuration: 10000 },
+
+  { state: "work-coding", weight: 4, minDuration: 8000, maxDuration: 15000 },
+  { state: "work-debug", weight: 3, minDuration: 6000, maxDuration: 10000 },
+  { state: "work-study", weight: 3, minDuration: 8000, maxDuration: 14000 },
+  { state: "work-paint", weight: 2, minDuration: 8000, maxDuration: 12000 },
+  { state: "work-write", weight: 3, minDuration: 6000, maxDuration: 12000 },
+  { state: "work-science", weight: 2, minDuration: 6000, maxDuration: 10000 },
+
+  { state: "play-dance", weight: 3, minDuration: 5000, maxDuration: 10000 },
+  { state: "play-game", weight: 3, minDuration: 8000, maxDuration: 15000 },
+  { state: "play-music", weight: 2, minDuration: 6000, maxDuration: 12000 },
+  { state: "play-sing", weight: 2, minDuration: 5000, maxDuration: 8000 },
+  { state: "play-ball", weight: 2, minDuration: 4000, maxDuration: 8000 },
+  { state: "play-skateboard", weight: 2, minDuration: 5000, maxDuration: 9000 },
+
+  { state: "life-drink", weight: 3, minDuration: 4000, maxDuration: 7000 },
+  { state: "life-exercise", weight: 2, minDuration: 5000, maxDuration: 10000 },
+  { state: "life-fish", weight: 2, minDuration: 8000, maxDuration: 15000 },
+  { state: "life-cook", weight: 2, minDuration: 6000, maxDuration: 10000 },
+
+  { state: "emotion-love", weight: 2, minDuration: 4000, maxDuration: 6000 },
+  { state: "emotion-laugh", weight: 2, minDuration: 3000, maxDuration: 5000 },
+  { state: "emotion-proud", weight: 1, minDuration: 4000, maxDuration: 6000 },
+
+  { state: "social-peek", weight: 2, minDuration: 4000, maxDuration: 7000 },
+  { state: "social-clap", weight: 1, minDuration: 3000, maxDuration: 5000 },
+];
+
+const KEYBOARD_STATES = [
+  "work-coding",
+  "working",
+  "work-write",
+  "work-study",
 ];
 
 const TIMINGS = {
@@ -84,6 +204,8 @@ let roamTimer = null;
 let eyeTrackingActive = false;
 let eyeTrackingRAF = null;
 let svgLoadCount = 0;
+let isKeyboardActive = false;
+let keyboardTimer = null;
 
 function getSvgPath(stateKey) {
   const file = STATE_FILES[stateKey];
@@ -141,12 +263,17 @@ function trackEyes() {
       const body = svgDoc.getElementById("body-js");
       const shadow = svgDoc.getElementById("shadow-js");
 
-      if (eyes) eyes.setAttribute("transform", `translate(${eyeX}, ${eyeY * 0.5})`);
-      if (body) body.setAttribute("transform", `translate(${bodyX}, ${bodyY * 0.3})`);
+      if (eyes)
+        eyes.setAttribute("transform", `translate(${eyeX}, ${eyeY * 0.5})`);
+      if (body)
+        body.setAttribute("transform", `translate(${bodyX}, ${bodyY * 0.3})`);
       if (shadow) {
         const scaleX = 1 + Math.abs(bodyX) * 0.15;
         const shiftX = bodyX * 0.3;
-        shadow.setAttribute("transform", `translate(${shiftX}, 0) scale(${scaleX}, 1)`);
+        shadow.setAttribute(
+          "transform",
+          `translate(${shiftX}, 0) scale(${scaleX}, 1)`
+        );
       }
     }
   } catch (e) {}
@@ -189,10 +316,11 @@ function setState(stateKey, opts = {}) {
 
 function scheduleIdleAnim() {
   clearIdleAnimTimer();
-  const delay = 10000 + Math.random() * 15000;
+  const delay = 8000 + Math.random() * 12000;
   idleAnimTimer = setTimeout(() => {
     if (currentState !== "idle" || isDragging || isInSleepSequence) return;
-    const anim = IDLE_ANIMATIONS[Math.floor(Math.random() * IDLE_ANIMATIONS.length)];
+    const anim =
+      IDLE_ANIMATIONS[Math.floor(Math.random() * IDLE_ANIMATIONS.length)];
     loadSVG(anim.file);
     currentState = "idle";
     setTimeout(() => {
@@ -249,9 +377,14 @@ function startSleepSequence() {
 }
 
 function wakeUp() {
-  if (!isInSleepSequence && currentState !== "sleeping" &&
-      currentState !== "dozing" && currentState !== "yawning" &&
-      currentState !== "collapsing") return;
+  if (
+    !isInSleepSequence &&
+    currentState !== "sleeping" &&
+    currentState !== "dozing" &&
+    currentState !== "yawning" &&
+    currentState !== "collapsing"
+  )
+    return;
   isInSleepSequence = false;
   loadSVG("waking");
   setTimeout(() => {
@@ -276,7 +409,10 @@ function startRoam() {
 
   const speed = 1.5;
   roamTimer = setInterval(() => {
-    window.electronAPI.dragStart({ dx: Math.round(roamDirection * speed), dy: 0 });
+    window.electronAPI.dragStart({
+      dx: Math.round(roamDirection * speed),
+      dy: 0,
+    });
   }, 16);
 
   const duration = 4000 + Math.random() * 8000;
@@ -302,9 +438,13 @@ function playReaction(type) {
     reactionTimer = null;
   }
 
-  if (isInSleepSequence || currentState === "sleeping" ||
-      currentState === "dozing" || currentState === "yawning" ||
-      currentState === "collapsing") {
+  if (
+    isInSleepSequence ||
+    currentState === "sleeping" ||
+    currentState === "dozing" ||
+    currentState === "yawning" ||
+    currentState === "collapsing"
+  ) {
     wakeUp();
     return;
   }
@@ -331,6 +471,66 @@ function playSound(name) {
   } catch (e) {}
 }
 
+// --- Keyboard Activity Detection (via main process powerMonitor) ---
+if (window.electronAPI.onUserTyping) {
+  window.electronAPI.onUserTyping(() => {
+    lastMouseMove = Date.now();
+
+    if (isInSleepSequence || currentState === "sleeping") {
+      wakeUp();
+      return;
+    }
+
+    if (!isKeyboardActive && isAutoMode && !isDragging && !reactionTimer) {
+      isKeyboardActive = true;
+      const kbState =
+        KEYBOARD_STATES[Math.floor(Math.random() * KEYBOARD_STATES.length)];
+      stopAutoMode();
+      clearIdleAnimTimer();
+      clearSleepTimer();
+      loadSVG(kbState);
+      currentState = kbState;
+    }
+
+    if (keyboardTimer) clearTimeout(keyboardTimer);
+    keyboardTimer = setTimeout(() => {
+      isKeyboardActive = false;
+      keyboardTimer = null;
+      if (isAutoMode) {
+        setState("idle");
+        startAutoMode();
+      }
+    }, 5000);
+  });
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    contextMenu.classList.add("hidden");
+  }
+});
+
+// --- Game Panel Animation Commands ---
+if (window.electronAPI.onAnimationCommand) {
+  window.electronAPI.onAnimationCommand((state) => {
+    if (STATE_FILES[state]) {
+      const wasAuto = isAutoMode;
+      stopAutoMode();
+      isAutoMode = false;
+      if (reactionTimer) {
+        clearTimeout(reactionTimer);
+        reactionTimer = null;
+      }
+      isInSleepSequence = false;
+      setState(state, { force: true, duration: 5000 });
+      setTimeout(() => {
+        isAutoMode = wasAuto;
+        if (wasAuto) startAutoMode();
+      }, 5000);
+    }
+  });
+}
+
 // --- Auto Mode ---
 function startAutoMode() {
   stopAutoMode();
@@ -353,10 +553,15 @@ function scheduleNextAutoState() {
   let chosen = AUTO_MODE_STATES[0];
   for (const entry of AUTO_MODE_STATES) {
     r -= entry.weight;
-    if (r <= 0) { chosen = entry; break; }
+    if (r <= 0) {
+      chosen = entry;
+      break;
+    }
   }
 
-  const duration = chosen.minDuration + Math.random() * (chosen.maxDuration - chosen.minDuration);
+  const duration =
+    chosen.minDuration +
+    Math.random() * (chosen.maxDuration - chosen.minDuration);
 
   if (chosen.state === "idle") {
     setState("idle");
@@ -367,7 +572,7 @@ function scheduleNextAutoState() {
   }
 
   autoModeTimer = setTimeout(() => {
-    if (isAutoMode && !reactionTimer && !isInSleepSequence) {
+    if (isAutoMode && !reactionTimer && !isInSleepSequence && !isKeyboardActive) {
       scheduleNextAutoState();
     }
   }, duration);
@@ -382,8 +587,12 @@ petContainer.addEventListener("mousedown", (e) => {
   petContainer.classList.add("dragging");
 
   lastMouseMove = Date.now();
-  if (isInSleepSequence || currentState === "sleeping" ||
-      currentState === "dozing" || currentState === "collapsing") {
+  if (
+    isInSleepSequence ||
+    currentState === "sleeping" ||
+    currentState === "dozing" ||
+    currentState === "collapsing"
+  ) {
     wakeUp();
     return;
   }
@@ -424,8 +633,12 @@ petContainer.addEventListener("click", (e) => {
 
   const now = Date.now();
 
-  if (isInSleepSequence || currentState === "sleeping" ||
-      currentState === "dozing" || currentState === "collapsing") {
+  if (
+    isInSleepSequence ||
+    currentState === "sleeping" ||
+    currentState === "dozing" ||
+    currentState === "collapsing"
+  ) {
     wakeUp();
     return;
   }
@@ -481,13 +694,10 @@ petContainer.addEventListener("contextmenu", (e) => {
 });
 
 document.addEventListener("click", (e) => {
-  if (!contextMenu.contains(e.target) && !contextMenu.classList.contains("hidden")) {
-    contextMenu.classList.add("hidden");
-  }
-});
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
+  if (
+    !contextMenu.contains(e.target) &&
+    !contextMenu.classList.contains("hidden")
+  ) {
     contextMenu.classList.add("hidden");
   }
 });
@@ -497,6 +707,11 @@ document.querySelectorAll(".menu-item").forEach((item) => {
     e.stopPropagation();
     const action = item.dataset.action;
     contextMenu.classList.add("hidden");
+
+    if (action === "game-panel") {
+      window.electronAPI.openGamePanel();
+      return;
+    }
 
     if (action === "auto") {
       isAutoMode = !isAutoMode;
@@ -517,45 +732,14 @@ document.querySelectorAll(".menu-item").forEach((item) => {
       reactionTimer = null;
     }
 
-    switch (action) {
-      case "idle":
-        setState("idle");
-        break;
-      case "thinking":
-        setState("thinking");
-        break;
-      case "working":
-        setState("working");
-        break;
-      case "building":
-        setState("building");
-        break;
-      case "juggling":
-        setState("juggling");
-        break;
-      case "sweeping":
-        setState("sweeping");
-        break;
-      case "carrying":
-        setState("carrying");
-        break;
-      case "happy":
-        setState("happy");
-        playSound("confirm.mp3");
-        break;
-      case "error":
-        setState("error");
-        break;
-      case "notification":
-        setState("notification");
-        playSound("complete.mp3");
-        break;
-      case "sleep":
-        startSleepSequence();
-        break;
-      case "roam":
-        setState("roam");
-        break;
+    if (action === "sleep") {
+      startSleepSequence();
+    } else if (action === "roam") {
+      setState("roam");
+    } else if (STATE_FILES[action]) {
+      setState(action);
+      if (action === "happy") playSound("confirm.mp3");
+      if (action === "notification") playSound("complete.mp3");
     }
   });
 });

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-15 -25 45 45" width="500" height="500">
+<defs><style>
+    .breathe-anim { transform-origin: 7.5px 13px; animation: breathe 3.2s infinite ease-in-out; }
+    .eyes-blink { transform-origin: 7.5px 9px; animation: eye-blink 4s infinite ease-in-out; }
+    @keyframes breathe { 0%, 100% { transform: scale(1, 1) translate(0, 0); } 50% { transform: scale(1.02, 0.98) translate(0, 0.5px); } }
+    @keyframes eye-blink { 0%, 10%, 100% { transform: scaleY(1); } 5% { transform: scaleY(0.1); } }
+    
+    .sleep-body { transform-origin: 7.5px 13px; animation: sleep-breathe 4s infinite ease-in-out; }
+    .zzz-1 { animation: zzz-go1 3s infinite ease-out; }
+    .zzz-2 { animation: zzz-go2 3s 1s infinite ease-out; }
+    .zzz-3 { animation: zzz-go3 3s 2s infinite ease-out; }
+    .dream-bubble { animation: dream-float 4s infinite ease-in-out; }
+    .dream-fish { animation: fish-swim 2s infinite ease-in-out; }
+    @keyframes sleep-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.03, 0.97); } }
+    @keyframes zzz-go1 { 0% { opacity: 0; transform: translate(0,0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(3px,-8px); } }
+    @keyframes zzz-go2 { 0% { opacity: 0; transform: translate(0,0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(4px,-9px); } }
+    @keyframes zzz-go3 { 0% { opacity: 0; transform: translate(0,0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(2px,-7px); } }
+    @keyframes dream-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
+    @keyframes fish-swim { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(1px); } }
+  
+  </style></defs>
+  <g id="shadow-js"><rect x="3" y="15" width="9" height="1" fill="#000000" opacity="0.5"/></g>
+  <g id="legs" fill="#DE886D">
+    <rect x="3" y="11" width="1" height="4"/><rect x="5" y="11" width="1" height="4"/>
+    <rect x="9" y="11" width="1" height="4"/><rect x="11" y="11" width="1" height="4"/>
+  </g>
+  <g class="sleep-body"><g id="body-js">
+    <rect id="torso" x="2" y="6" width="11" height="7" fill="#DE886D"/>
+    <rect x="0" y="9" width="2" height="2" fill="#DE886D"/>
+    <rect x="13" y="9" width="2" height="2" fill="#DE886D"/>
+    <g id="eyes-js" fill="#000000">
+      <rect x="4" y="9" width="1.5" height="0.5"/><rect x="10" y="9" width="1.5" height="0.5"/>
+    </g>
+  </g></g>
+  <g fill="#aaa" font-family="monospace" font-size="3">
+    <text class="zzz-1" x="14" y="5">z</text>
+    <text class="zzz-2" x="16" y="3">z</text>
+    <text class="zzz-3" x="18" y="1">z</text>
+  </g>
+  <g class="dream-bubble">
+    <rect x="16" y="-10" width="10" height="7" fill="white" opacity="0.7" rx="1"/>
+    <rect x="15" y="-3" width="1" height="1" fill="white" opacity="0.5"/>
+    <rect x="14" y="-1" width="0.8" height="0.8" fill="white" opacity="0.3"/>
+    <g class="dream-fish">
+      <rect x="18" y="-8" width="3" height="2" fill="#4488ff"/>
+      <rect x="21" y="-8.5" width="1" height="1" fill="#4488ff"/>
+      <rect x="21" y="-7" width="1" height="1" fill="#4488ff"/>
+      <rect x="18.5" y="-7.5" width="0.5" height="0.5" fill="#000000"/>
+    </g>
+  </g>
+</svg>
