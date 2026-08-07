@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' file:; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' file:; media-src 'self' file:;">
+  <link rel="stylesheet" href="styles.css">
+  <title>Clawd</title>
+</head>
+<body>
+  <div id="pet-container">
+    <div id="pet-facing-stage">
+      <div id="pet-media-layer">
+        <object id="clawd" class="clawd-object" type="image/svg+xml"></object>
+      </div>
+    </div>
+  </div>
+  <div id="context-menu" class="context-menu hidden">
+    <div class="menu-item" data-action="idle">Idle</div>
+    <div class="menu-item" data-action="thinking">Thinking</div>
+    <div class="menu-item" data-action="working">Working</div>
+    <div class="menu-item" data-action="building">Building</div>
+    <div class="menu-item" data-action="juggling">Juggling</div>
+    <div class="menu-item" data-action="sweeping">Sweeping</div>
+    <div class="menu-item" data-action="carrying">Carrying</div>
+    <div class="menu-item" data-action="happy">Happy</div>
+    <div class="menu-item" data-action="error">Error</div>
+    <div class="menu-item" data-action="notification">Notification</div>
+    <div class="menu-item" data-action="sleep">Sleep</div>
+    <div class="menu-item" data-action="roam">Roam</div>
+    <div class="menu-separator"></div>
+    <div class="menu-item" data-action="auto">Auto Mode</div>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+</html>

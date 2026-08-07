@@ -1,0 +1,39 @@
+{
+  "name": "clawd-desktop-pet",
+  "version": "1.0.0",
+  "description": "Clawd desktop pet - a pixel crab that lives on your desktop",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "keywords": ["clawd", "desktop-pet", "electron"],
+  "license": "AGPL-3.0-only",
+  "type": "commonjs",
+  "build": {
+    "appId": "com.clawd.desktop-pet",
+    "productName": "Clawd Desktop Pet",
+    "mac": {
+      "icon": "assets/icon.png",
+      "category": "public.app-category.entertainment",
+      "extendInfo": { "LSUIElement": true }
+    },
+    "win": {
+      "icon": "assets/icon.png"
+    },
+    "linux": {
+      "icon": "assets/icon.png",
+      "category": "Utility"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^41.10.2",
+    "electron-builder": "^26.8.1"
+  }
+}
