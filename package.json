@@ -21,7 +21,8 @@
       "extendInfo": { "LSUIElement": true }
     },
     "win": {
-      "icon": "assets/icon.png"
+      "icon": "assets/icon.png",
+      "target": ["portable"]
     },
     "linux": {
       "icon": "assets/icon.png",
