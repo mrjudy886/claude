@@ -20,9 +20,10 @@ function createDefaultState() {
     totalCoinsEarned: 100,
     stats: { hunger: 80, happiness: 80, energy: 100, cleanliness: 90, health: 100 },
     inventory: [
-      { id: "bread", name: "Bread", icon: "🍞", type: "food", effect: { hunger: 15 }, quantity: 3, sellPrice: 2 },
-      { id: "ball", name: "Ball", icon: "⚽", type: "toy", effect: { happiness: 20 }, quantity: 1, sellPrice: 5 },
-      { id: "carrot_seed", name: "Carrot Seed", icon: "🥕", type: "seed", growTime: 60000, harvestItem: { id: "carrot", name: "Carrot", icon: "🥕", type: "food", effect: { hunger: 10 }, sellPrice: 8 }, quantity: 2, sellPrice: 1 },
+      { id: "bread", name: "面包", icon: "🍞", type: "food", effect: { hunger: 15 }, quantity: 3, sellPrice: 2 },
+      { id: "ball", name: "皮球", icon: "⚽", type: "toy", effect: { happiness: 20 }, quantity: 1, sellPrice: 5 },
+      { id: "carrot_seed", name: "胡萝卜种子", icon: "🥕", type: "seed", growTime: 60000, harvestItem: { id: "carrot", name: "胡萝卜", icon: "🥕", type: "food", effect: { hunger: 10 }, sellPrice: 8 }, quantity: 2, sellPrice: 1 },
+      { id: "normal_bait", name: "普通鱼饵", icon: "🪱", type: "bait", quantity: 5, sellPrice: 1 },
     ],
     garden: Array(16).fill(null),
     achievements: {},
@@ -33,7 +34,18 @@ function createDefaultState() {
     totalGamesWon: 0,
     totalFoodFed: 0,
     totalToysUsed: 0,
+    totalFishCaught: 0,
+    totalDishesCooked: 0,
+    totalQuestsCompleted: 0,
+    totalWheelSpins: 0,
     playTimeSeconds: 0,
+    dailyQuestsDate: null,
+    weeklyQuestsDate: null,
+    dailyQuests: [],
+    weeklyQuests: [],
+    lastWheelSpin: null,
+    fishCollection: [],
+    recipesUnlocked: [],
     createdAt: Date.now(),
     lastSaved: Date.now(),
     lastTick: Date.now(),
@@ -123,28 +135,31 @@ function startGardenTimer() {
 
 // ─── Achievements ───
 const ACHIEVEMENTS = {
-  first_meal: { name: "First Meal", desc: "Feed your pet for the first time", icon: "🍞", check: (s) => s.totalFoodFed >= 1 },
-  foodie: { name: "Foodie", desc: "Feed your pet 10 times", icon: "🍔", check: (s) => s.totalFoodFed >= 10 },
-  gourmet: { name: "Gourmet", desc: "Feed your pet 50 times", icon: "🍳", check: (s) => s.totalFoodFed >= 50 },
-  first_harvest: { name: "First Harvest", desc: "Harvest your first crop", icon: "🌾", check: (s) => s.totalCropsHarvested >= 1 },
-  green_thumb: { name: "Green Thumb", desc: "Harvest 10 crops", icon: "🌱", check: (s) => s.totalCropsHarvested >= 10 },
-  master_gardener: { name: "Master Gardener", desc: "Harvest 50 crops", icon: "🌻", check: (s) => s.totalCropsHarvested >= 50 },
-  coin_collector: { name: "Coin Collector", desc: "Earn 100 coins total", icon: "🪙", check: (s) => s.totalCoinsEarned >= 100 },
-  rich: { name: "Getting Rich", desc: "Earn 500 coins total", icon: "💰", check: (s) => s.totalCoinsEarned >= 500 },
-  wealthy: { name: "Wealthy", desc: "Earn 2000 coins total", icon: "💎", check: (s) => s.totalCoinsEarned >= 2000 },
-  tycoon: { name: "Tycoon", desc: "Earn 10000 coins total", icon: "🏦", check: (s) => s.totalCoinsEarned >= 10000 },
-  happy_pet: { name: "Happy Pet", desc: "Reach 100 happiness", icon: "😊", check: (s) => s.stats.happiness >= 100 },
-  healthy_pet: { name: "Healthy Pet", desc: "All stats above 80", icon: "💪", check: (s) => Object.values(s.stats).every(v => v >= 80) },
-  gamer: { name: "Gamer", desc: "Play 10 mini-games", icon: "🎮", check: (s) => s.totalGamesPlayed >= 10 },
-  game_master: { name: "Game Master", desc: "Win 20 mini-games", icon: "🏆", check: (s) => s.totalGamesWon >= 20 },
-  shopper: { name: "Shopper", desc: "Buy 10 items", icon: "🛒", check: (s) => s.totalItemsBought >= 10 },
-  shopping_spree: { name: "Shopping Spree", desc: "Buy 50 items", icon: "🎁", check: (s) => s.totalItemsBought >= 50 },
-  level5: { name: "Rising Star", desc: "Reach level 5", icon: "⭐", check: (s) => s.level >= 5 },
-  level10: { name: "Veteran", desc: "Reach level 10", icon: "🌟", check: (s) => s.level >= 10 },
-  level20: { name: "Legend", desc: "Reach level 20", icon: "💫", check: (s) => s.level >= 20 },
-  playtime1h: { name: "Loyal Friend", desc: "Play for 1 hour", icon: "⏰", check: (s) => s.playTimeSeconds >= 3600 },
-  playtime10h: { name: "Best Friend", desc: "Play for 10 hours", icon: "💕", check: (s) => s.playTimeSeconds >= 36000 },
-  first_toy: { name: "Playful", desc: "Use a toy for the first time", icon: "🧸", check: (s) => s.totalToysUsed >= 1 },
+  first_meal: { name: "初次喂食", desc: "第一次喂食宠物", icon: "🍞", check: (s) => s.totalFoodFed >= 1 },
+  foodie: { name: "美食家", desc: "喂食宠物10次", icon: "🍔", check: (s) => s.totalFoodFed >= 10 },
+  gourmet: { name: "饕餮之徒", desc: "喂食宠物50次", icon: "🍳", check: (s) => s.totalFoodFed >= 50 },
+  first_harvest: { name: "第一次收获", desc: "收获第一株作物", icon: "🌾", check: (s) => s.totalCropsHarvested >= 1 },
+  green_thumb: { name: "绿手指", desc: "收获10株作物", icon: "🌱", check: (s) => s.totalCropsHarvested >= 10 },
+  master_gardener: { name: "园艺大师", desc: "收获50株作物", icon: "🌻", check: (s) => s.totalCropsHarvested >= 50 },
+  coin_collector: { name: "零花钱", desc: "累计获得100金币", icon: "🪙", check: (s) => s.totalCoinsEarned >= 100 },
+  rich: { name: "小有积蓄", desc: "累计获得500金币", icon: "💰", check: (s) => s.totalCoinsEarned >= 500 },
+  wealthy: { name: "富甲一方", desc: "累计获得2000金币", icon: "💎", check: (s) => s.totalCoinsEarned >= 2000 },
+  tycoon: { name: "商业大亨", desc: "累计获得10000金币", icon: "🏦", check: (s) => s.totalCoinsEarned >= 10000 },
+  happy_pet: { name: "快乐宠物", desc: "快乐值达到100", icon: "😊", check: (s) => s.stats.happiness >= 100 },
+  healthy_pet: { name: "健康达标", desc: "所有属性超过80", icon: "💪", check: (s) => Object.values(s.stats).every(v => v >= 80) },
+  gamer: { name: "游戏新手", desc: "玩10局小游戏", icon: "🎮", check: (s) => s.totalGamesPlayed >= 10 },
+  game_master: { name: "游戏达人", desc: "赢20局小游戏", icon: "🏆", check: (s) => s.totalGamesWon >= 20 },
+  shopper: { name: "购物新手", desc: "购买10件物品", icon: "🛒", check: (s) => s.totalItemsBought >= 10 },
+  shopping_spree: { name: "购物狂", desc: "购买50件物品", icon: "🎁", check: (s) => s.totalItemsBought >= 50 },
+  level5: { name: "初露锋芒", desc: "达到5级", icon: "⭐", check: (s) => s.level >= 5 },
+  level10: { name: "小有名气", desc: "达到10级", icon: "🌟", check: (s) => s.level >= 10 },
+  level20: { name: "声名远播", desc: "达到20级", icon: "💫", check: (s) => s.level >= 20 },
+  playtime1h: { name: "忠实伙伴", desc: "游玩1小时", icon: "⏰", check: (s) => s.playTimeSeconds >= 3600 },
+  playtime10h: { name: "最佳好友", desc: "游玩10小时", icon: "💕", check: (s) => s.playTimeSeconds >= 36000 },
+  first_toy: { name: "玩伴", desc: "第一次使用玩具", icon: "🧸", check: (s) => s.totalToysUsed >= 1 },
+  first_fish: { name: "初次垂钓", desc: "钓到第一条鱼", icon: "🐟", check: (s) => s.totalFishCaught >= 1 },
+  first_cook: { name: "初次烹饪", desc: "制作第一道菜", icon: "🍳", check: (s) => s.totalDishesCooked >= 1 },
+  quest_starter: { name: "任务新手", desc: "完成5个任务", icon: "📋", check: (s) => s.totalQuestsCompleted >= 5 },
 };
 
 function checkAchievements() {
@@ -178,46 +193,67 @@ function addXP(amount) {
 
 // ─── Shop Catalog ───
 const SHOP_CATALOG = [
-  { id: "bread", name: "Bread", icon: "🍞", type: "food", effect: { hunger: 15 }, price: 5, sellPrice: 2 },
-  { id: "apple", name: "Apple", icon: "🍎", type: "food", effect: { hunger: 10, health: 5 }, price: 8, sellPrice: 3 },
-  { id: "cake", name: "Cake", icon: "🎂", type: "food", effect: { hunger: 25, happiness: 10 }, price: 20, sellPrice: 8 },
-  { id: "sushi", name: "Sushi", icon: "🍣", type: "food", effect: { hunger: 30, happiness: 5 }, price: 30, sellPrice: 12 },
-  { id: "pizza", name: "Pizza", icon: "🍕", type: "food", effect: { hunger: 20, happiness: 8 }, price: 15, sellPrice: 6 },
-  { id: "cookie", name: "Cookie", icon: "🍪", type: "food", effect: { hunger: 8, happiness: 12 }, price: 10, sellPrice: 4 },
-  { id: "steak", name: "Steak", icon: "🥩", type: "food", effect: { hunger: 40, energy: 10 }, price: 40, sellPrice: 16 },
-  { id: "salad", name: "Salad", icon: "🥗", type: "food", effect: { hunger: 12, health: 10 }, price: 12, sellPrice: 5 },
-  { id: "icecream", name: "Ice Cream", icon: "🍨", type: "food", effect: { hunger: 5, happiness: 20 }, price: 18, sellPrice: 7 },
-  { id: "ramen", name: "Ramen", icon: "🍜", type: "food", effect: { hunger: 35, energy: 5 }, price: 25, sellPrice: 10 },
-  { id: "coffee", name: "Coffee", icon: "☕", type: "food", effect: { energy: 30, happiness: 5 }, price: 10, sellPrice: 4 },
-  { id: "tea", name: "Tea", icon: "🍵", type: "food", effect: { energy: 15, health: 5, cleanliness: 3 }, price: 8, sellPrice: 3 },
-  { id: "ball", name: "Ball", icon: "⚽", type: "toy", effect: { happiness: 20, energy: -10 }, price: 15, sellPrice: 5 },
-  { id: "kite", name: "Kite", icon: "🪁", type: "toy", effect: { happiness: 25, energy: -15 }, price: 25, sellPrice: 10 },
-  { id: "game_console", name: "Game Console", icon: "🎮", type: "toy", effect: { happiness: 35, energy: -5 }, price: 100, sellPrice: 40 },
-  { id: "guitar", name: "Guitar", icon: "🎸", type: "toy", effect: { happiness: 30, energy: -8 }, price: 80, sellPrice: 30 },
-  { id: "skateboard", name: "Skateboard", icon: "🛹", type: "toy", effect: { happiness: 28, energy: -20 }, price: 60, sellPrice: 22 },
-  { id: "book", name: "Book", icon: "📚", type: "toy", effect: { happiness: 15, energy: -3 }, price: 20, sellPrice: 8 },
-  { id: "puzzle", name: "Puzzle", icon: "🧩", type: "toy", effect: { happiness: 18, energy: -5 }, price: 30, sellPrice: 12 },
-  { id: "teddy", name: "Teddy Bear", icon: "🧸", type: "toy", effect: { happiness: 22, energy: 5 }, price: 40, sellPrice: 15 },
-  { id: "paint_set", name: "Paint Set", icon: "🎨", type: "toy", effect: { happiness: 25, energy: -10 }, price: 35, sellPrice: 14 },
-  { id: "telescope", name: "Telescope", icon: "🔭", type: "toy", effect: { happiness: 20, energy: -5 }, price: 50, sellPrice: 20 },
-  { id: "carrot_seed", name: "Carrot Seed", icon: "🥕", type: "seed", growTime: 60000, harvestItem: { id: "carrot", name: "Carrot", icon: "🥕", type: "food", effect: { hunger: 10 }, sellPrice: 8 }, price: 5, sellPrice: 1 },
-  { id: "tomato_seed", name: "Tomato Seed", icon: "🍅", type: "seed", growTime: 90000, harvestItem: { id: "tomato", name: "Tomato", icon: "🍅", type: "food", effect: { hunger: 12, health: 5 }, sellPrice: 12 }, price: 8, sellPrice: 2 },
-  { id: "sunflower_seed", name: "Sunflower Seed", icon: "🌻", type: "seed", growTime: 120000, harvestItem: { id: "sunflower", name: "Sunflower", icon: "🌻", type: "food", effect: { happiness: 15 }, sellPrice: 18 }, price: 12, sellPrice: 3 },
-  { id: "strawberry_seed", name: "Strawberry Seed", icon: "🍓", type: "seed", growTime: 150000, harvestItem: { id: "strawberry", name: "Strawberry", icon: "🍓", type: "food", effect: { hunger: 8, happiness: 12 }, sellPrice: 22 }, price: 15, sellPrice: 4 },
-  { id: "pumpkin_seed", name: "Pumpkin Seed", icon: "🎃", type: "seed", growTime: 200000, harvestItem: { id: "pumpkin", name: "Pumpkin", icon: "🎃", type: "food", effect: { hunger: 30 }, sellPrice: 30 }, price: 20, sellPrice: 5 },
-  { id: "watermelon_seed", name: "Watermelon Seed", icon: "🍉", type: "seed", growTime: 250000, harvestItem: { id: "watermelon", name: "Watermelon", icon: "🍉", type: "food", effect: { hunger: 25, happiness: 10 }, sellPrice: 38 }, price: 25, sellPrice: 6 },
-  { id: "golden_apple_seed", name: "Golden Apple Seed", icon: "🍏", type: "seed", growTime: 300000, harvestItem: { id: "golden_apple", name: "Golden Apple", icon: "🍏", type: "food", effect: { hunger: 50, health: 30, happiness: 20 }, sellPrice: 80 }, price: 50, sellPrice: 12 },
-  { id: "soap", name: "Soap", icon: "🧼", type: "tool", effect: { cleanliness: 30 }, price: 8, sellPrice: 3 },
-  { id: "shampoo", name: "Shampoo", icon: "🧴", type: "tool", effect: { cleanliness: 50 }, price: 15, sellPrice: 6 },
-  { id: "medicine", name: "Medicine", icon: "💊", type: "tool", effect: { health: 30 }, price: 25, sellPrice: 10 },
-  { id: "energy_drink", name: "Energy Drink", icon: "⚡", type: "tool", effect: { energy: 40 }, price: 20, sellPrice: 8 },
-  { id: "fertilizer", name: "Fertilizer", icon: "💩", type: "tool", effect: { gardenSpeed: 2 }, price: 15, sellPrice: 5 },
-  { id: "super_fertilizer", name: "Super Fertilizer", icon: "✨", type: "tool", effect: { gardenSpeed: 4 }, price: 30, sellPrice: 12 },
-  { id: "top_hat", name: "Top Hat", icon: "🎩", type: "decoration", effect: { happiness: 5 }, price: 50, sellPrice: 20 },
-  { id: "crown", name: "Crown", icon: "👑", type: "decoration", effect: { happiness: 15 }, price: 200, sellPrice: 80 },
-  { id: "sunglasses", name: "Sunglasses", icon: "🕶️", type: "decoration", effect: { happiness: 8 }, price: 30, sellPrice: 12 },
-  { id: "bowtie", name: "Bowtie", icon: "🎀", type: "decoration", effect: { happiness: 6 }, price: 25, sellPrice: 10 },
-  { id: "cape", name: "Cape", icon: "🦸", type: "decoration", effect: { happiness: 12 }, price: 80, sellPrice: 30 },
+  { id: "bread", name: "面包", icon: "🍞", type: "food", effect: { hunger: 15 }, price: 5, sellPrice: 2 },
+  { id: "apple", name: "苹果", icon: "🍎", type: "food", effect: { hunger: 10, health: 5 }, price: 8, sellPrice: 3 },
+  { id: "cake", name: "蛋糕", icon: "🎂", type: "food", effect: { hunger: 25, happiness: 10 }, price: 20, sellPrice: 8 },
+  { id: "sushi", name: "寿司", icon: "🍣", type: "food", effect: { hunger: 30, happiness: 5 }, price: 30, sellPrice: 12 },
+  { id: "pizza", name: "披萨", icon: "🍕", type: "food", effect: { hunger: 20, happiness: 8 }, price: 15, sellPrice: 6 },
+  { id: "cookie", name: "饼干", icon: "🍪", type: "food", effect: { hunger: 8, happiness: 12 }, price: 10, sellPrice: 4 },
+  { id: "steak", name: "牛排", icon: "🥩", type: "food", effect: { hunger: 40, energy: 10 }, price: 40, sellPrice: 16 },
+  { id: "salad", name: "沙拉", icon: "🥗", type: "food", effect: { hunger: 12, health: 10 }, price: 12, sellPrice: 5 },
+  { id: "icecream", name: "冰淇淋", icon: "🍨", type: "food", effect: { hunger: 5, happiness: 20 }, price: 18, sellPrice: 7 },
+  { id: "ramen", name: "拉面", icon: "🍜", type: "food", effect: { hunger: 35, energy: 5 }, price: 25, sellPrice: 10 },
+  { id: "coffee", name: "咖啡", icon: "☕", type: "food", effect: { energy: 30, happiness: 5 }, price: 10, sellPrice: 4 },
+  { id: "tea", name: "茶", icon: "🍵", type: "food", effect: { energy: 15, health: 5, cleanliness: 3 }, price: 8, sellPrice: 3 },
+  { id: "lobster", name: "龙虾", icon: "🦞", type: "food", effect: { hunger: 50, happiness: 15, health: 10 }, price: 60, sellPrice: 24 },
+  { id: "feast", name: "满汉全席", icon: "🍱", type: "food", effect: { hunger: 100, happiness: 30, energy: 20, health: 15 }, price: 200, sellPrice: 80 },
+  { id: "ball", name: "皮球", icon: "⚽", type: "toy", effect: { happiness: 20, energy: -10 }, price: 15, sellPrice: 5 },
+  { id: "kite", name: "风筝", icon: "🪁", type: "toy", effect: { happiness: 25, energy: -15 }, price: 25, sellPrice: 10 },
+  { id: "game_console", name: "游戏机", icon: "🎮", type: "toy", effect: { happiness: 35, energy: -5 }, price: 100, sellPrice: 40 },
+  { id: "guitar", name: "吉他", icon: "🎸", type: "toy", effect: { happiness: 30, energy: -8 }, price: 80, sellPrice: 30 },
+  { id: "skateboard", name: "滑板", icon: "🛹", type: "toy", effect: { happiness: 28, energy: -20 }, price: 60, sellPrice: 22 },
+  { id: "book", name: "书本", icon: "📚", type: "toy", effect: { happiness: 15, energy: -3 }, price: 20, sellPrice: 8 },
+  { id: "puzzle", name: "拼图", icon: "🧩", type: "toy", effect: { happiness: 18, energy: -5 }, price: 30, sellPrice: 12 },
+  { id: "teddy", name: "泰迪熊", icon: "🧸", type: "toy", effect: { happiness: 22, energy: 5 }, price: 40, sellPrice: 15 },
+  { id: "paint_set", name: "画板", icon: "🎨", type: "toy", effect: { happiness: 25, energy: -10 }, price: 35, sellPrice: 14 },
+  { id: "telescope", name: "望远镜", icon: "🔭", type: "toy", effect: { happiness: 20, energy: -5 }, price: 50, sellPrice: 20 },
+  { id: "rubik", name: "魔方", icon: "🧊", type: "toy", effect: { happiness: 16, energy: -3 }, price: 20, sellPrice: 8 },
+  { id: "carrot_seed", name: "胡萝卜种子", icon: "🥕", type: "seed", growTime: 60000, harvestItem: { id: "carrot", name: "胡萝卜", icon: "🥕", type: "food", effect: { hunger: 10 }, sellPrice: 8 }, price: 5, sellPrice: 1 },
+  { id: "tomato_seed", name: "番茄种子", icon: "🍅", type: "seed", growTime: 90000, harvestItem: { id: "tomato", name: "番茄", icon: "🍅", type: "food", effect: { hunger: 12, health: 5 }, sellPrice: 12 }, price: 8, sellPrice: 2 },
+  { id: "sunflower_seed", name: "向日葵种子", icon: "🌻", type: "seed", growTime: 120000, harvestItem: { id: "sunflower", name: "向日葵", icon: "🌻", type: "food", effect: { happiness: 15 }, sellPrice: 18 }, price: 12, sellPrice: 3 },
+  { id: "strawberry_seed", name: "草莓种子", icon: "🍓", type: "seed", growTime: 150000, harvestItem: { id: "strawberry", name: "草莓", icon: "🍓", type: "food", effect: { hunger: 8, happiness: 12 }, sellPrice: 22 }, price: 15, sellPrice: 4 },
+  { id: "pumpkin_seed", name: "南瓜种子", icon: "🎃", type: "seed", growTime: 200000, harvestItem: { id: "pumpkin", name: "南瓜", icon: "🎃", type: "food", effect: { hunger: 30 }, sellPrice: 30 }, price: 20, sellPrice: 5 },
+  { id: "watermelon_seed", name: "西瓜种子", icon: "🍉", type: "seed", growTime: 250000, harvestItem: { id: "watermelon", name: "西瓜", icon: "🍉", type: "food", effect: { hunger: 25, happiness: 10 }, sellPrice: 38 }, price: 25, sellPrice: 6 },
+  { id: "golden_apple_seed", name: "金苹果种子", icon: "🍏", type: "seed", growTime: 300000, harvestItem: { id: "golden_apple", name: "金苹果", icon: "🍏", type: "food", effect: { hunger: 50, health: 30, happiness: 20 }, sellPrice: 80 }, price: 50, sellPrice: 12 },
+  { id: "rainbow_seed", name: "彩虹花种子", icon: "🌈", type: "seed", growTime: 600000, harvestItem: { id: "rainbow_flower", name: "彩虹花", icon: "🌈", type: "decoration", effect: { happiness: 30 }, sellPrice: 150 }, price: 100, sellPrice: 25 },
+  { id: "soap", name: "肥皂", icon: "🧼", type: "tool", effect: { cleanliness: 30 }, price: 8, sellPrice: 3 },
+  { id: "shampoo", name: "洗发水", icon: "🧴", type: "tool", effect: { cleanliness: 50 }, price: 15, sellPrice: 6 },
+  { id: "medicine", name: "药品", icon: "💊", type: "tool", effect: { health: 30 }, price: 25, sellPrice: 10 },
+  { id: "energy_drink", name: "能量饮料", icon: "⚡", type: "tool", effect: { energy: 40 }, price: 20, sellPrice: 8 },
+  { id: "fertilizer", name: "肥料", icon: "💩", type: "tool", effect: { gardenSpeed: 2 }, price: 15, sellPrice: 5 },
+  { id: "super_fertilizer", name: "超级肥料", icon: "✨", type: "tool", effect: { gardenSpeed: 4 }, price: 30, sellPrice: 12 },
+  { id: "fishing_rod_up", name: "鱼竿升级", icon: "🎣", type: "tool", effect: { fishingBonus: 1 }, price: 50, sellPrice: 20 },
+  { id: "oven", name: "高级烤箱", icon: "🔥", type: "tool", effect: { cookingBonus: 1 }, price: 80, sellPrice: 30 },
+  { id: "normal_bait", name: "普通鱼饵", icon: "🪱", type: "bait", price: 3, sellPrice: 1 },
+  { id: "good_bait", name: "高级鱼饵", icon: "🐛", type: "bait", price: 8, sellPrice: 3 },
+  { id: "gold_bait", name: "金色鱼饵", icon: "✨", type: "bait", price: 20, sellPrice: 8 },
+  { id: "legend_bait", name: "传说鱼饵", icon: "🌟", type: "bait", price: 50, sellPrice: 20 },
+  { id: "flour", name: "面粉", icon: "🌾", type: "ingredient", price: 3, sellPrice: 1 },
+  { id: "egg", name: "鸡蛋", icon: "🥚", type: "ingredient", price: 5, sellPrice: 2 },
+  { id: "milk", name: "牛奶", icon: "🥛", type: "ingredient", price: 8, sellPrice: 3 },
+  { id: "butter", name: "黄油", icon: "🧈", type: "ingredient", price: 10, sellPrice: 4 },
+  { id: "chocolate", name: "巧克力", icon: "🍫", type: "ingredient", price: 15, sellPrice: 6 },
+  { id: "cream", name: "奶油", icon: "🍦", type: "ingredient", price: 12, sellPrice: 5 },
+  { id: "honey", name: "蜂蜜", icon: "🍯", type: "ingredient", price: 20, sellPrice: 8 },
+  { id: "truffle", name: "松露", icon: "🍄", type: "ingredient", price: 80, sellPrice: 30 },
+  { id: "top_hat", name: "礼帽", icon: "🎩", type: "decoration", effect: { happiness: 5 }, price: 50, sellPrice: 20 },
+  { id: "crown", name: "皇冠", icon: "👑", type: "decoration", effect: { happiness: 15 }, price: 200, sellPrice: 80 },
+  { id: "sunglasses", name: "墨镜", icon: "🕶️", type: "decoration", effect: { happiness: 8 }, price: 30, sellPrice: 12 },
+  { id: "bowtie", name: "领结", icon: "🎀", type: "decoration", effect: { happiness: 6 }, price: 25, sellPrice: 10 },
+  { id: "cape", name: "披风", icon: "🦸", type: "decoration", effect: { happiness: 12 }, price: 80, sellPrice: 30 },
+  { id: "wings", name: "翅膀", icon: "🪽", type: "decoration", effect: { happiness: 18 }, price: 150, sellPrice: 60 },
+  { id: "halo", name: "光环", icon: "😇", type: "decoration", effect: { happiness: 20 }, price: 300, sellPrice: 120 },
+  { id: "dragon_set", name: "龙之套装", icon: "🐉", type: "decoration", effect: { happiness: 30 }, price: 500, sellPrice: 200 },
 ];
 
 function broadcastState() {
@@ -259,8 +295,8 @@ ipcMain.handle("spend-coins", (_, amount) => {
 
 ipcMain.handle("buy-item", (_, itemId) => {
   const catalog = SHOP_CATALOG.find(i => i.id === itemId);
-  if (!catalog) return { ok: false, reason: "Item not found" };
-  if (gameState.coins < catalog.price) return { ok: false, reason: "Not enough coins" };
+  if (!catalog) return { ok: false, reason: "物品未找到" };
+  if (gameState.coins < catalog.price) return { ok: false, reason: "金币不足" };
 
   gameState.coins -= catalog.price;
   gameState.totalItemsBought++;
@@ -351,17 +387,17 @@ ipcMain.handle("use-item", (_, itemId) => {
 
 ipcMain.handle("plant-seed", (_, plotIndex, seedId) => {
   if (plotIndex < 0 || plotIndex >= 16) return { ok: false };
-  if (gameState.garden[plotIndex] !== null) return { ok: false, reason: "Plot occupied" };
+  if (gameState.garden[plotIndex] !== null) return { ok: false, reason: "地块已被占用" };
 
   const seed = gameState.inventory.find(i => i.id === seedId && i.type === "seed");
-  if (!seed || seed.quantity <= 0) return { ok: false, reason: "No seeds" };
+  if (!seed || seed.quantity <= 0) return { ok: false, reason: "没有种子" };
 
   seed.quantity--;
   if (seed.quantity <= 0) gameState.inventory = gameState.inventory.filter(i => i.id !== seedId);
 
   gameState.garden[plotIndex] = {
     seedId: seed.id,
-    name: seed.name.replace(" Seed", ""),
+    name: seed.name.replace("种子", ""),
     icon: seed.harvestItem ? seed.harvestItem.icon : seed.icon,
     stage: "sprout",
     plantedAt: Date.now(),
@@ -537,17 +573,17 @@ function createTray() {
 
   tray = new Tray(trayIcon);
   const contextMenu = Menu.buildFromTemplate([
-    { label: "Show Clawd", click: () => { if (petWindow) { petWindow.show(); } } },
-    { label: "Game Panel", click: () => createGameWindow() },
+    { label: "显示 Clawd", click: () => { if (petWindow) { petWindow.show(); } } },
+    { label: "🎮 游戏面板", click: () => createGameWindow() },
     { type: "separator" },
-    { label: "Reset Position", click: () => {
+    { label: "重置位置", click: () => {
       if (petWindow) {
         const { width: sw, height: sh } = screen.getPrimaryDisplay().workAreaSize;
         petWindow.setPosition(Math.floor(sw / 2 - PET_SIZE / 2), sh - PET_SIZE - 20);
       }
     }},
     { type: "separator" },
-    { label: "Quit", click: () => { saveGameState(); app.quit(); } },
+    { label: "退出", click: () => { saveGameState(); app.quit(); } },
   ]);
 
   tray.setToolTip("Clawd Desktop Pet");

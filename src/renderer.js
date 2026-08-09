@@ -215,11 +215,13 @@ function getSvgPath(stateKey) {
 
 function loadSVG(stateKey) {
   const svgPath = getSvgPath(stateKey);
-  if (!svgPath) return;
+  if (!svgPath) {
+    if (stateKey !== "idle") loadSVG("idle");
+    return;
+  }
 
   svgLoadCount++;
   const thisLoad = svgLoadCount;
-  clawdObj.data = `${svgPath}?_t=${thisLoad}`;
   currentState = stateKey;
   currentFile = STATE_FILES[stateKey];
 
@@ -227,6 +229,13 @@ function loadSVG(stateKey) {
     if (svgLoadCount !== thisLoad) return;
     updateEyeTracking();
   };
+
+  clawdObj.onerror = () => {
+    if (svgLoadCount !== thisLoad) return;
+    if (stateKey !== "idle") loadSVG("idle");
+  };
+
+  clawdObj.data = `${svgPath}?_t=${Date.now()}`;
 }
 
 function updateEyeTracking() {
@@ -686,9 +695,9 @@ petContainer.addEventListener("contextmenu", (e) => {
     item.classList.remove("active");
     if (item.dataset.action === "auto" && isAutoMode) {
       item.classList.add("active");
-      item.textContent = "Auto Mode (ON)";
+      item.textContent = "自动模式 (开)";
     } else if (item.dataset.action === "auto") {
-      item.textContent = "Auto Mode (OFF)";
+      item.textContent = "自动模式 (关)";
     }
   });
 });
