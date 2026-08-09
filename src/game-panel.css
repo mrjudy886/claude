@@ -1194,12 +1194,12 @@ body {
 }
 
 .quest-tab-btn {
-  padding: 5px 14px;
-  font-size: 12px;
+  padding: 7px 16px;
+  font-size: 13px;
   font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--border-color);
-  border-radius: 14px;
+  border-radius: 16px;
   background: var(--bg-tertiary);
   color: var(--text-secondary);
   cursor: pointer;
@@ -1223,75 +1223,7 @@ body {
   gap: 8px;
 }
 
-.quest-card {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: all var(--transition-fast);
-}
-
-.quest-card:hover {
-  border-color: var(--accent-cyan);
-  background: rgba(57, 210, 192, 0.04);
-}
-
-.quest-card .quest-icon {
-  font-size: 22px;
-  flex-shrink: 0;
-}
-
-.quest-card .quest-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.quest-card .quest-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 2px;
-}
-
-.quest-card .quest-desc {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-}
-
-.quest-progress-bar {
-  height: 6px;
-  background: var(--bg-primary);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.quest-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
-  border-radius: 3px;
-  transition: width var(--transition-slow);
-}
-
-.quest-card .quest-reward {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--accent-yellow);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.quest-card.completed {
-  opacity: 0.5;
-  border-color: var(--accent-green);
-}
-
-.quest-card.completed .quest-name {
-  text-decoration: line-through;
-}
+/* Quest card styles moved to bottom of file */
 
 /* ============================================================
    8. Lucky Wheel Tab
@@ -2707,4 +2639,374 @@ body {
   font-size: 24px;
   color: var(--accent-red);
   margin-bottom: 16px;
+}
+
+/* ============================================================
+   QUEST SYSTEM - Enhanced UI
+   ============================================================ */
+.quest-summary-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(56, 139, 253, 0.08), rgba(139, 148, 158, 0.05));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+}
+.quest-summary-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.quest-summary-icon { font-size: 20px; }
+.quest-summary-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.quest-summary-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.quest-summary-count {
+  font-size: 12px;
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+.quest-summary-progress {
+  width: 80px;
+  height: 6px;
+  background: var(--bg-primary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.quest-summary-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.quest-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+.quest-card:hover {
+  border-color: var(--accent-cyan);
+  background: rgba(57, 210, 192, 0.04);
+  transform: translateX(3px);
+}
+.quest-card.completed {
+  border-color: var(--accent-green);
+  background: rgba(63, 185, 80, 0.06);
+  opacity: 0.7;
+}
+.quest-card.ready-claim {
+  border-color: var(--accent-yellow);
+  animation: questGlow 1.5s ease-in-out infinite;
+}
+@keyframes questGlow {
+  0%, 100% { box-shadow: 0 0 4px rgba(210, 153, 34, 0.2); }
+  50% { box-shadow: 0 0 12px rgba(210, 153, 34, 0.4); }
+}
+
+.quest-card-icon-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(56, 139, 253, 0.1), rgba(139, 148, 158, 0.08));
+  border-radius: 10px;
+}
+.quest-card-icon { font-size: 22px; }
+.quest-check {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 14px;
+}
+
+.quest-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.quest-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.quest-card-flavor {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-style: italic;
+}
+.quest-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+.quest-progress-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.quest-card-reward {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-yellow);
+}
+.quest-card .quest-progress-bar {
+  height: 5px;
+  background: var(--bg-primary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.quest-card .quest-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.quest-card .quest-progress-fill.done {
+  background: linear-gradient(90deg, var(--accent-green), #39ff14);
+}
+
+.quest-empty {
+  text-align: center;
+  padding: 30px 10px;
+  color: var(--text-muted);
+}
+.quest-empty-icon { font-size: 36px; margin-bottom: 8px; }
+.quest-empty-text { font-size: 13px; }
+
+.quest-all-done {
+  text-align: center;
+  padding: 14px;
+  margin-top: 8px;
+  background: linear-gradient(135deg, rgba(63, 185, 80, 0.1), rgba(57, 210, 192, 0.08));
+  border: 1px solid var(--accent-green);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-green);
+}
+
+/* ============================================================
+   COOKING SYSTEM - Enhanced Card UI
+   ============================================================ */
+.cooking-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(210, 153, 34, 0.1), rgba(248, 81, 73, 0.06));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+}
+.cooking-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cooking-header-icon { font-size: 22px; }
+.cooking-header-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.cooking-header-right {}
+.cooking-header-stat {
+  font-size: 12px;
+  color: var(--accent-yellow);
+  font-weight: 600;
+}
+
+.cooking-progress-wrap {
+  margin-bottom: 14px;
+}
+.cooking-progress-bar {
+  height: 6px;
+  background: var(--bg-primary);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.cooking-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-orange), var(--accent-yellow));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+.cooking-progress-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.cooking-diff-section {
+  margin-bottom: 16px;
+}
+.cooking-diff-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.cooking-diff-stars { font-size: 12px; }
+.cooking-diff-name { font-size: 13px; font-weight: 700; }
+.cooking-diff-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.cooking-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.recipe-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+.recipe-card:hover {
+  border-color: var(--accent-orange);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.recipe-card.can-cook {
+  border-color: rgba(63, 185, 80, 0.4);
+  background: rgba(63, 185, 80, 0.04);
+}
+.recipe-card.cooked-before {
+  position: relative;
+}
+
+.recipe-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.recipe-card-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+.recipe-cooked-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: rgba(63, 185, 80, 0.15);
+  border: 1px solid rgba(63, 185, 80, 0.3);
+  border-radius: 8px;
+  color: var(--accent-green);
+  font-weight: 600;
+}
+
+.recipe-card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+.recipe-card-flavor {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: 8px;
+  min-height: 16px;
+}
+
+.recipe-card-ings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.recipe-ing-tag {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.recipe-ing-tag.have {
+  border-color: rgba(63, 185, 80, 0.4);
+  color: var(--accent-green);
+}
+.recipe-ing-tag.missing {
+  border-color: rgba(248, 81, 73, 0.3);
+  color: var(--accent-red);
+}
+.ing-qty {
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.recipe-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.recipe-card-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-yellow);
+}
+.recipe-card-xp {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-purple);
+}
+
+.recipe-cook-btn {
+  width: 100%;
+  padding: 7px 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: linear-gradient(135deg, #f97316, #ef4444);
+  color: #fff;
+  margin-top: auto;
+}
+.recipe-cook-btn:hover:not(.disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+}
+.recipe-cook-btn.disabled {
+  background: var(--bg-primary);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
 }

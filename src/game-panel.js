@@ -127,22 +127,44 @@ const RARITY_COLORS = { common: '#aaa', rare: '#4dabf7', epic: '#be4bdb', legend
 // 食谱定义 (15+)
 // ============================================================
 const RECIPES = [
-  { id: 'fried_egg', name: '煎蛋', icon: '🍳', ingredients: [{ id: 'egg', qty: 1 }], value: 8, xp: 3 },
-  { id: 'honey_bread', name: '蜂蜜面包', icon: '🍞', ingredients: [{ id: 'bread', qty: 1 }, { id: 'honey', qty: 1 }], value: 15, xp: 5 },
-  { id: 'bread_pudding', name: '面包布丁', icon: '🍮', ingredients: [{ id: 'bread', qty: 1 }, { id: 'egg', qty: 1 }, { id: 'milk', qty: 1 }], value: 25, xp: 8 },
-  { id: 'strawberry_shake', name: '草莓奶昔', icon: '🥤', ingredients: [{ id: 'strawberry', qty: 1 }, { id: 'milk', qty: 1 }, { id: 'cream', qty: 1 }], value: 30, xp: 10 },
-  { id: 'pumpkin_soup', name: '南瓜汤', icon: '🥣', ingredients: [{ id: 'pumpkin', qty: 1 }, { id: 'milk', qty: 1 }, { id: 'butter', qty: 1 }], value: 35, xp: 10 },
-  { id: 'watermelon_slush', name: '西瓜冰沙', icon: '🍧', ingredients: [{ id: 'watermelon', qty: 1 }, { id: 'icecream', qty: 1 }], value: 40, xp: 12 },
-  { id: 'choco_cake', name: '巧克力蛋糕', icon: '🎂', ingredients: [{ id: 'flour', qty: 1 }, { id: 'egg', qty: 1 }, { id: 'chocolate', qty: 1 }, { id: 'butter', qty: 1 }], value: 50, xp: 15 },
-  { id: 'cream_puff', name: '奶油泡芙', icon: '🧁', ingredients: [{ id: 'flour', qty: 1 }, { id: 'egg', qty: 1 }, { id: 'cream', qty: 1 }], value: 28, xp: 8 },
-  { id: 'milk_chocolate', name: '牛奶巧克力', icon: '🍫', ingredients: [{ id: 'milk', qty: 1 }, { id: 'chocolate', qty: 1 }], value: 22, xp: 6 },
-  { id: 'butter_cookie', name: '黄油曲奇', icon: '🍪', ingredients: [{ id: 'flour', qty: 1 }, { id: 'butter', qty: 1 }, { id: 'egg', qty: 1 }], value: 20, xp: 6 },
-  { id: 'honey_milk', name: '蜂蜜牛奶', icon: '🥛', ingredients: [{ id: 'honey', qty: 1 }, { id: 'milk', qty: 1 }], value: 18, xp: 5 },
-  { id: 'rainbow_cake', name: '彩虹蛋糕', icon: '🌈', ingredients: [{ id: 'flour', qty: 1 }, { id: 'egg', qty: 1 }, { id: 'cream', qty: 1 }, { id: 'honey', qty: 1 }, { id: 'strawberry', qty: 1 }], value: 80, xp: 25 },
-  { id: 'truffle_pasta', name: '松露意面', icon: '🍝', ingredients: [{ id: 'flour', qty: 1 }, { id: 'truffle', qty: 1 }, { id: 'butter', qty: 1 }], value: 120, xp: 30 },
-  { id: 'golden_feast', name: '黄金盛宴', icon: '👑', ingredients: [{ id: 'golden_apple', qty: 1 }, { id: 'honey', qty: 1 }, { id: 'cream', qty: 1 }, { id: 'truffle', qty: 1 }], value: 300, xp: 50 },
-  { id: 'fruit_salad', name: '水果沙拉', icon: '🥗', ingredients: [{ id: 'apple', qty: 1 }, { id: 'strawberry', qty: 1 }, { id: 'honey', qty: 1 }], value: 25, xp: 7 },
-  { id: 'choco_truffle', name: '松露巧克力', icon: '🍬', ingredients: [{ id: 'truffle', qty: 1 }, { id: 'chocolate', qty: 1 }, { id: 'cream', qty: 1 }], value: 150, xp: 35 },
+  // --- 初级料理 (简单食材) ---
+  { id: 'fried_egg', name: '煎蛋', icon: '🍳', difficulty: 1, ingredients: [{ id: 'egg', qty: 1 }], value: 8, xp: 3, flavor: '简单的快手早餐~ ☀️' },
+  { id: 'milk_tea', name: '奶茶', icon: '🧋', difficulty: 1, ingredients: [{ id: 'milk', qty: 1 }], value: 10, xp: 3, flavor: '来一杯暖暖的奶茶吧 (´▽`ʃ♡ƪ)' },
+  { id: 'toast', name: '黄油吐司', icon: '🍞', difficulty: 1, ingredients: [{ id: 'flour', qty: 1 }, { id: 'butter', qty: 1 }], value: 12, xp: 4, flavor: '酥脆金黄！✧' },
+  { id: 'omelette', name: '蛋卷', icon: '🥚', difficulty: 1, ingredients: [{ id: 'egg', qty: 2 }], value: 14, xp: 4, flavor: '蓬松柔软的蛋卷~ 🌸' },
+
+  // --- 中级料理 ---
+  { id: 'honey_bread', name: '蜂蜜面包', icon: '🍯', difficulty: 2, ingredients: [{ id: 'flour', qty: 1 }, { id: 'honey', qty: 1 }], value: 18, xp: 5, flavor: '甜蜜蜜~ (ﾉ´ヮ`)ﾉ*:・ﾟ✧' },
+  { id: 'honey_milk', name: '蜂蜜牛奶', icon: '🥛', difficulty: 2, ingredients: [{ id: 'honey', qty: 1 }, { id: 'milk', qty: 1 }], value: 18, xp: 5, flavor: '温暖治愈的一杯 ♡' },
+  { id: 'milk_chocolate', name: '牛奶巧克力', icon: '🍫', difficulty: 2, ingredients: [{ id: 'milk', qty: 1 }, { id: 'chocolate', qty: 1 }], value: 22, xp: 6, flavor: '浓浓巧克力香~ ₍ᐢ..ᐢ₎♡' },
+  { id: 'butter_cookie', name: '黄油曲奇', icon: '🍪', difficulty: 2, ingredients: [{ id: 'flour', qty: 1 }, { id: 'butter', qty: 1 }, { id: 'egg', qty: 1 }], value: 20, xp: 6, flavor: '酥脆小饼干！(⌒▽⌒)' },
+  { id: 'egg_tart', name: '蛋挞', icon: '🥧', difficulty: 2, ingredients: [{ id: 'egg', qty: 1 }, { id: 'milk', qty: 1 }, { id: 'butter', qty: 1 }], value: 22, xp: 7, flavor: '金黄酥皮好诱人~ (ㆁωㆁ)' },
+  { id: 'pancake', name: '松饼', icon: '🥞', difficulty: 2, ingredients: [{ id: 'flour', qty: 1 }, { id: 'egg', qty: 1 }, { id: 'milk', qty: 1 }], value: 20, xp: 6, flavor: '堆叠松饼塔！٩(◕‿◕)۶' },
+
+  // --- 高级料理 ---
+  { id: 'bread_pudding', name: '面包布丁', icon: '🍮', difficulty: 3, ingredients: [{ id: 'flour', qty: 1 }, { id: 'egg', qty: 1 }, { id: 'milk', qty: 1 }], value: 25, xp: 8, flavor: '软糯Q弹~ (´ε` )♡' },
+  { id: 'cream_puff', name: '奶油泡芙', icon: '🧁', difficulty: 3, ingredients: [{ id: 'flour', qty: 1 }, { id: 'egg', qty: 1 }, { id: 'cream', qty: 1 }], value: 28, xp: 8, flavor: '爆浆泡芙！(ﾉ◕ヮ◕)ﾉ*:・ﾟ' },
+  { id: 'fruit_salad', name: '水果沙拉', icon: '🥗', difficulty: 3, ingredients: [{ id: 'apple', qty: 1 }, { id: 'strawberry', qty: 1 }, { id: 'honey', qty: 1 }], value: 25, xp: 7, flavor: '彩色水果拼盘~ 🌈' },
+  { id: 'strawberry_shake', name: '草莓奶昔', icon: '🥤', difficulty: 3, ingredients: [{ id: 'strawberry', qty: 1 }, { id: 'milk', qty: 1 }, { id: 'cream', qty: 1 }], value: 30, xp: 10, flavor: '粉粉的少女心~ ♡(*´∀`*)人(*´∀`*)♡' },
+  { id: 'pumpkin_soup', name: '南瓜汤', icon: '🥣', difficulty: 3, ingredients: [{ id: 'pumpkin', qty: 1 }, { id: 'milk', qty: 1 }, { id: 'butter', qty: 1 }], value: 35, xp: 10, flavor: '温暖的秋日味道~ 🍂' },
+  { id: 'chocolate_banana', name: '巧克力香蕉', icon: '🍌', difficulty: 3, ingredients: [{ id: 'chocolate', qty: 1 }, { id: 'cream', qty: 1 }], value: 28, xp: 8, flavor: '经典搭配！(≧◡≦)' },
+  { id: 'honey_lemon', name: '蜂蜜柠檬茶', icon: '🍋', difficulty: 3, ingredients: [{ id: 'honey', qty: 1 }, { id: 'carrot', qty: 1 }], value: 22, xp: 7, flavor: '清新解渴~ 🌿' },
+
+  // --- 大师料理 ---
+  { id: 'watermelon_slush', name: '西瓜冰沙', icon: '🍧', difficulty: 4, ingredients: [{ id: 'watermelon', qty: 1 }, { id: 'cream', qty: 1 }], value: 40, xp: 12, flavor: '夏日必备！(ﾉ´ヮ`)ﾉ*:・ﾟ✧' },
+  { id: 'choco_cake', name: '巧克力蛋糕', icon: '🎂', difficulty: 4, ingredients: [{ id: 'flour', qty: 1 }, { id: 'egg', qty: 1 }, { id: 'chocolate', qty: 1 }, { id: 'butter', qty: 1 }], value: 50, xp: 15, flavor: '双层巧克力！甜蜜暴击~ 💝' },
+  { id: 'crepe', name: '法式可丽饼', icon: '🥞', difficulty: 4, ingredients: [{ id: 'flour', qty: 1 }, { id: 'egg', qty: 1 }, { id: 'butter', qty: 1 }, { id: 'cream', qty: 1 }], value: 45, xp: 14, flavor: '优雅的法式风味~ ✨' },
+  { id: 'tiramisu', name: '提拉米苏', icon: '🍰', difficulty: 4, ingredients: [{ id: 'cream', qty: 1 }, { id: 'chocolate', qty: 1 }, { id: 'egg', qty: 1 }], value: 48, xp: 14, flavor: '意式经典甜品！♡(ŐωŐ人)' },
+  { id: 'carrot_cake', name: '胡萝卜蛋糕', icon: '🥕', difficulty: 4, ingredients: [{ id: 'carrot', qty: 2 }, { id: 'flour', qty: 1 }, { id: 'egg', qty: 1 }, { id: 'cream', qty: 1 }], value: 42, xp: 13, flavor: '健康又美味！🥕✨' },
+  { id: 'tomato_soup', name: '罗宋汤', icon: '🍅', difficulty: 4, ingredients: [{ id: 'tomato', qty: 2 }, { id: 'butter', qty: 1 }], value: 35, xp: 11, flavor: '浓郁番茄香~ 🍲' },
+
+  // --- 传说料理 ---
+  { id: 'rainbow_cake', name: '彩虹蛋糕', icon: '🌈', difficulty: 5, ingredients: [{ id: 'flour', qty: 1 }, { id: 'egg', qty: 1 }, { id: 'cream', qty: 1 }, { id: 'honey', qty: 1 }, { id: 'strawberry', qty: 1 }], value: 80, xp: 25, flavor: '七彩梦幻蛋糕！✧*。٩(ˊᗜˋ*)و✧*。' },
+  { id: 'truffle_pasta', name: '松露意面', icon: '🍝', difficulty: 5, ingredients: [{ id: 'flour', qty: 1 }, { id: 'truffle', qty: 1 }, { id: 'butter', qty: 1 }], value: 120, xp: 30, flavor: '米其林级别的享受！(☆▽☆)' },
+  { id: 'choco_truffle', name: '松露巧克力', icon: '🍬', difficulty: 5, ingredients: [{ id: 'truffle', qty: 1 }, { id: 'chocolate', qty: 1 }, { id: 'cream', qty: 1 }], value: 150, xp: 35, flavor: '极致奢华巧克力！💎' },
+  { id: 'golden_feast', name: '黄金盛宴', icon: '👑', difficulty: 5, ingredients: [{ id: 'golden_apple', qty: 1 }, { id: 'honey', qty: 1 }, { id: 'cream', qty: 1 }, { id: 'truffle', qty: 1 }], value: 300, xp: 50, flavor: '传说中的帝王料理！(ﾉ◕ヮ◕)ﾉ*:・ﾟ👑' },
+  { id: 'world_tree_tea', name: '世界树茶', icon: '🌳', difficulty: 5, ingredients: [{ id: 'world_tree_fruit', qty: 1 }, { id: 'honey', qty: 1 }], value: 350, xp: 60, flavor: '蕴含世界之力的神茶！🌍✨' },
+  { id: 'cosmic_parfait', name: '宇宙圣代', icon: '🪐', difficulty: 5, ingredients: [{ id: 'cream', qty: 1 }, { id: 'chocolate', qty: 1 }, { id: 'honey', qty: 1 }, { id: 'strawberry', qty: 1 }], value: 90, xp: 28, flavor: '银河般绚丽的甜品！🌌💫' },
 ];
 
 // ============================================================
@@ -213,7 +235,7 @@ const ACHIEVEMENTS = [
   { id: 'cook_1', name: '初入厨房', series: '烹饪之神', icon: '🍳', tier: 0, target: 1, stat: 'totalCooked', desc: '做1道菜', reward: 5 },
   { id: 'cook_2', name: '家庭厨师', series: '烹饪之神', icon: '🍳', tier: 1, target: 10, stat: 'totalCooked', desc: '做10道菜', reward: 20 },
   { id: 'cook_3', name: '烹饪大师', series: '烹饪之神', icon: '🍳', tier: 2, target: 30, stat: 'totalCooked', desc: '做30道菜', reward: 60 },
-  { id: 'cook_4', name: '烹饪之神', series: '烹饪之神', icon: '🍳', tier: 3, target: 16, stat: 'uniqueRecipes', desc: '解锁所有菜谱', reward: 300 },
+  { id: 'cook_4', name: '烹饪之神', series: '烹饪之神', icon: '🍳', tier: 3, target: 30, stat: 'uniqueRecipes', desc: '解锁所有菜谱', reward: 500 },
 ];
 
 // ============================================================
@@ -234,23 +256,45 @@ const MINI_GAMES = [
 // 任务池定义
 // ============================================================
 const DAILY_QUEST_POOL = [
-  { id: 'dq_feed3', desc: '喂食宠物3次', stat: 'timesFeeding', target: 3, coinReward: 15, xpReward: 10, type: 'delta' },
-  { id: 'dq_game1', desc: '玩一局小游戏', stat: 'gamesPlayed', target: 1, coinReward: 10, xpReward: 8, type: 'delta' },
-  { id: 'dq_harvest2', desc: '收获2个农作物', stat: 'totalHarvests', target: 2, coinReward: 20, xpReward: 12, type: 'delta' },
-  { id: 'dq_earn50', desc: '赚取50金币', stat: 'totalCoinsEarned', target: 50, coinReward: 20, xpReward: 15, type: 'delta' },
-  { id: 'dq_water5', desc: '浇水5次', stat: 'timesWatering', target: 5, coinReward: 15, xpReward: 8, type: 'delta' },
-  { id: 'dq_buy1', desc: '购买1件物品', stat: 'itemsBought', target: 1, coinReward: 10, xpReward: 5, type: 'delta' },
-  { id: 'dq_toy1', desc: '使用1个玩具', stat: 'timesPlaying', target: 1, coinReward: 10, xpReward: 5, type: 'delta' },
-  { id: 'dq_fish1', desc: '钓1条鱼', stat: 'totalFished', target: 1, coinReward: 15, xpReward: 8, type: 'delta' },
-  { id: 'dq_cook1', desc: '做1道菜', stat: 'totalCooked', target: 1, coinReward: 15, xpReward: 8, type: 'delta' },
+  { id: 'dq_feed3', desc: '喂食宠物3次', icon: '🍖', stat: 'timesFeeding', target: 3, coinReward: 15, xpReward: 10, type: 'delta', flavor: '宠物饿了呢~ (´；ω；`)' },
+  { id: 'dq_feed5', desc: '喂食宠物5次', icon: '🍔', stat: 'timesFeeding', target: 5, coinReward: 25, xpReward: 15, type: 'delta', flavor: '让Clawd吃个饱！(ﾉ´ヮ`)ﾉ*:・ﾟ✧' },
+  { id: 'dq_game1', desc: '玩一局小游戏', icon: '🎮', stat: 'gamesPlayed', target: 1, coinReward: 10, xpReward: 8, type: 'delta', flavor: '来玩耍吧~ ╰(▔∀▔)╯' },
+  { id: 'dq_game3', desc: '玩3局小游戏', icon: '🕹️', stat: 'gamesPlayed', target: 3, coinReward: 25, xpReward: 15, type: 'delta', flavor: '游戏达人就是你！(ง •̀_•́)ง' },
+  { id: 'dq_harvest2', desc: '收获2个农作物', icon: '🌾', stat: 'totalHarvests', target: 2, coinReward: 20, xpReward: 12, type: 'delta', flavor: '丰收的季节到了~ 🌈' },
+  { id: 'dq_harvest5', desc: '收获5个农作物', icon: '🌻', stat: 'totalHarvests', target: 5, coinReward: 35, xpReward: 18, type: 'delta', flavor: '大丰收！(⌐■_■)' },
+  { id: 'dq_earn50', desc: '赚取50金币', icon: '💰', stat: 'totalCoinsEarned', target: 50, coinReward: 20, xpReward: 15, type: 'delta', flavor: '钱钱快到碗里来~ (つ✧ω✧)つ' },
+  { id: 'dq_earn100', desc: '赚取100金币', icon: '💎', stat: 'totalCoinsEarned', target: 100, coinReward: 35, xpReward: 20, type: 'delta', flavor: '致富之路！₍₍ ◝(°꒳°)◜ ₎₎' },
+  { id: 'dq_water5', desc: '浇水5次', icon: '💧', stat: 'timesWatering', target: 5, coinReward: 15, xpReward: 8, type: 'delta', flavor: '植物需要水分哦~ 🌱' },
+  { id: 'dq_water10', desc: '浇水10次', icon: '🚿', stat: 'timesWatering', target: 10, coinReward: 25, xpReward: 12, type: 'delta', flavor: '勤劳的小园丁！(ﾉ◕ヮ◕)ﾉ*:・ﾟ✧' },
+  { id: 'dq_buy1', desc: '购买1件物品', icon: '🛒', stat: 'itemsBought', target: 1, coinReward: 10, xpReward: 5, type: 'delta', flavor: '买买买~ ╰(*°▽°*)╯' },
+  { id: 'dq_buy3', desc: '购买3件物品', icon: '🛍️', stat: 'itemsBought', target: 3, coinReward: 20, xpReward: 10, type: 'delta', flavor: '购物小达人！✧*。٩(ˊᗜˋ*)و✧*。' },
+  { id: 'dq_toy1', desc: '使用1个玩具', icon: '🧸', stat: 'timesPlaying', target: 1, coinReward: 10, xpReward: 5, type: 'delta', flavor: '玩具时间到~ ₍ᐢ..ᐢ₎♡' },
+  { id: 'dq_fish1', desc: '钓1条鱼', icon: '🎣', stat: 'totalFished', target: 1, coinReward: 15, xpReward: 8, type: 'delta', flavor: '鱼儿快上钩！🐟' },
+  { id: 'dq_fish3', desc: '钓3条鱼', icon: '🐠', stat: 'totalFished', target: 3, coinReward: 30, xpReward: 15, type: 'delta', flavor: '钓鱼大师出没！(o゜▽゜)o☆' },
+  { id: 'dq_cook1', desc: '做1道菜', icon: '🍳', stat: 'totalCooked', target: 1, coinReward: 15, xpReward: 8, type: 'delta', flavor: '厨房小当家~ 🔥' },
+  { id: 'dq_cook3', desc: '做3道菜', icon: '👨‍🍳', stat: 'totalCooked', target: 3, coinReward: 30, xpReward: 15, type: 'delta', flavor: '大厨驾到！ヾ(≧▽≦*)o' },
+  { id: 'dq_clean2', desc: '给宠物洗澡2次', icon: '🧼', stat: 'timesCleaning', target: 2, coinReward: 12, xpReward: 6, type: 'delta', flavor: '干干净净最舒服~ 🫧' },
+  { id: 'dq_plant3', desc: '种植3株作物', icon: '🌱', stat: 'totalPlanted', target: 3, coinReward: 18, xpReward: 10, type: 'delta', flavor: '播下希望的种子！🌷' },
+  { id: 'dq_win2', desc: '赢得2场游戏', icon: '🏆', stat: 'gamesWon', target: 2, coinReward: 25, xpReward: 12, type: 'delta', flavor: '胜利属于你！(ﾉ>ω<)ﾉ' },
+  { id: 'dq_battle1', desc: '进行1场对战', icon: '⚔️', stat: 'battlesStarted', target: 1, coinReward: 20, xpReward: 10, type: 'delta', flavor: '勇士出发！🛡️' },
+  { id: 'dq_spin1', desc: '转动幸运转盘', icon: '🎡', stat: 'wheelSpins', target: 1, coinReward: 10, xpReward: 5, type: 'delta', flavor: '今天运气好吗？(☆▽☆)' },
 ];
 
 const WEEKLY_QUEST_POOL = [
-  { id: 'wq_earn200', desc: '累计赚取200金币', stat: 'totalCoinsEarned', target: 200, coinReward: 80, xpReward: 40, type: 'delta' },
-  { id: 'wq_win5', desc: '赢得5场小游戏', stat: 'gamesWon', target: 5, coinReward: 60, xpReward: 30, type: 'delta' },
-  { id: 'wq_harvest10', desc: '收获10个农作物', stat: 'totalHarvests', target: 10, coinReward: 60, xpReward: 35, type: 'delta' },
-  { id: 'wq_dailyall', desc: '完成所有每日任务', stat: 'dailyQuestsCompleted', target: 3, coinReward: 100, xpReward: 50, type: 'delta' },
-  { id: 'wq_levelup', desc: '达到新等级', stat: 'levelsGained', target: 1, coinReward: 50, xpReward: 30, type: 'delta' },
+  { id: 'wq_earn500', desc: '累计赚取500金币', icon: '💰', stat: 'totalCoinsEarned', target: 500, coinReward: 120, xpReward: 60, type: 'delta', flavor: '本周财富目标！(つ✧ω✧)つ💎' },
+  { id: 'wq_earn1000', desc: '累计赚取1000金币', icon: '🏦', stat: 'totalCoinsEarned', target: 1000, coinReward: 200, xpReward: 80, type: 'delta', flavor: '超级理财王！₍₍ (ง ˙ω˙)ว ⁾⁾' },
+  { id: 'wq_win5', desc: '赢得5场小游戏', icon: '🏆', stat: 'gamesWon', target: 5, coinReward: 80, xpReward: 40, type: 'delta', flavor: '不败神话！(ง •̀_•́)ง✧' },
+  { id: 'wq_win10', desc: '赢得10场小游戏', icon: '👑', stat: 'gamesWon', target: 10, coinReward: 150, xpReward: 60, type: 'delta', flavor: '传说中的冠军！✧*。٩(ˊᗜˋ*)و✧*。' },
+  { id: 'wq_harvest10', desc: '收获10个农作物', icon: '🌾', stat: 'totalHarvests', target: 10, coinReward: 60, xpReward: 35, type: 'delta', flavor: '金色的麦田~ 🌅' },
+  { id: 'wq_harvest25', desc: '收获25个农作物', icon: '🌈', stat: 'totalHarvests', target: 25, coinReward: 120, xpReward: 50, type: 'delta', flavor: '农业大亨！( •̀ ω •́ )✧' },
+  { id: 'wq_dailyall', desc: '完成所有每日任务', icon: '⭐', stat: 'dailyQuestsCompleted', target: 3, coinReward: 100, xpReward: 50, type: 'delta', flavor: '勤劳的小蜜蜂~ 🐝' },
+  { id: 'wq_levelup', desc: '提升1个等级', icon: '📈', stat: 'levelsGained', target: 1, coinReward: 50, xpReward: 30, type: 'delta', flavor: '越来越强了！ᕦ(ò_óˇ)ᕤ' },
+  { id: 'wq_levelup3', desc: '提升3个等级', icon: '🚀', stat: 'levelsGained', target: 3, coinReward: 150, xpReward: 80, type: 'delta', flavor: '火箭般的成长！🔥' },
+  { id: 'wq_feed20', desc: '喂食宠物20次', icon: '🍖', stat: 'timesFeeding', target: 20, coinReward: 80, xpReward: 40, type: 'delta', flavor: 'Clawd的小吃货！(ﾉ´ヮ`)ﾉ*:・ﾟ🍕' },
+  { id: 'wq_fish15', desc: '钓15条鱼', icon: '🐟', stat: 'totalFished', target: 15, coinReward: 100, xpReward: 50, type: 'delta', flavor: '海的王者！🌊' },
+  { id: 'wq_cook10', desc: '做10道菜', icon: '👨‍🍳', stat: 'totalCooked', target: 10, coinReward: 90, xpReward: 45, type: 'delta', flavor: '周末大厨！ヾ(≧▽≦*)o🔥' },
+  { id: 'wq_buy10', desc: '购买10件物品', icon: '🛍️', stat: 'itemsBought', target: 10, coinReward: 70, xpReward: 35, type: 'delta', flavor: '剁手星期~ ✨' },
+  { id: 'wq_battle5', desc: '进行5场对战', icon: '⚔️', stat: 'battlesStarted', target: 5, coinReward: 100, xpReward: 50, type: 'delta', flavor: '战斗不止！(ノ◕ヮ◕)ノ*:・ﾟ✧' },
 ];
 
 // ============================================================
@@ -312,6 +356,8 @@ function createDefaultState() {
       minutesPlayed: 0,
       levelsGained: 0,
       dailyQuestsCompleted: 0,
+      battlesStarted: 0,
+      wheelSpins: 0,
       totalActions: 0,
       level: 1,
     },
@@ -385,6 +431,7 @@ async function init() {
   }
 
   bindStatusActions();
+  bindQuestTabs();
 
   try {
     renderAll();
@@ -2312,23 +2359,26 @@ function checkAchievements() {
 // ============================================================
 // 任务系统
 // ============================================================
+let activeQuestTab = 'daily';
+
 function refreshQuests() {
   const now = Date.now();
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
   const todayMs = todayStart.getTime();
 
-  // 每日任务刷新
-  if (!gameState.quests.lastDailyRefresh || gameState.quests.lastDailyRefresh < todayMs) {
+  if (!gameState.quests) {
+    gameState.quests = { daily: [], weekly: [], lastDailyRefresh: 0, lastWeeklyRefresh: 0 };
+  }
+
+  if (!gameState.quests.lastDailyRefresh || gameState.quests.lastDailyRefresh < todayMs || !gameState.quests.daily || gameState.quests.daily.length === 0) {
     gameState.quests.daily = generateDailyQuests();
     gameState.quests.lastDailyRefresh = now;
-    // 保存当前trackers快照用于delta计算
     gameState.quests.dailySnapshot = { ...gameState.trackers };
   }
 
-  // 每周任务刷新 (每7天)
   const weekMs = 7 * 24 * 60 * 60 * 1000;
-  if (!gameState.quests.lastWeeklyRefresh || now - gameState.quests.lastWeeklyRefresh > weekMs) {
+  if (!gameState.quests.lastWeeklyRefresh || now - gameState.quests.lastWeeklyRefresh > weekMs || !gameState.quests.weekly || gameState.quests.weekly.length === 0) {
     gameState.quests.weekly = generateWeeklyQuests();
     gameState.quests.lastWeeklyRefresh = now;
     gameState.quests.weeklySnapshot = { ...gameState.trackers };
@@ -2337,12 +2387,12 @@ function refreshQuests() {
 
 function generateDailyQuests() {
   const shuffled = [...DAILY_QUEST_POOL].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, 3).map((q) => ({ ...q, completed: false }));
+  return shuffled.slice(0, 5).map((q) => ({ ...q, completed: false }));
 }
 
 function generateWeeklyQuests() {
   const shuffled = [...WEEKLY_QUEST_POOL].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, 2).map((q) => ({ ...q, completed: false }));
+  return shuffled.slice(0, 4).map((q) => ({ ...q, completed: false }));
 }
 
 function updateQuestProgress() {
@@ -2382,68 +2432,85 @@ function updateQuestProgress() {
 function renderQuests() {
   const container = document.getElementById('quest-list');
   if (!container) return;
-  container.innerHTML = '';
 
-  // 每日任务
-  const dailyHeader = document.createElement('div');
-  dailyHeader.className = 'quest-section-title';
-  dailyHeader.textContent = '每日任务 (每天刷新)';
-  container.appendChild(dailyHeader);
+  refreshQuests();
 
-  const dailySnap = gameState.quests.dailySnapshot || {};
-  for (const quest of (gameState.quests.daily || [])) {
-    const current = gameState.trackers[quest.stat] || 0;
-    const baseline = dailySnap[quest.stat] || 0;
-    const delta = Math.max(0, current - baseline);
-    const progress = Math.min(1, delta / quest.target);
+  const quests = activeQuestTab === 'daily' ? (gameState.quests.daily || []) : (gameState.quests.weekly || []);
+  const snap = activeQuestTab === 'daily' ? (gameState.quests.dailySnapshot || {}) : (gameState.quests.weeklySnapshot || {});
+  const isDaily = activeQuestTab === 'daily';
 
-    const div = document.createElement('div');
-    div.className = 'quest-card' + (quest.completed ? ' completed' : '');
-    div.innerHTML = `
-      <div class="quest-info">
-        <div class="quest-desc">${quest.completed ? '✅' : '⬜'} ${quest.desc}</div>
-        <div class="quest-reward">奖励: 🪙${quest.coinReward} +${quest.xpReward}经验</div>
-        ${!quest.completed ? `
-          <div class="quest-progress">
-            <div class="quest-progress-fill" style="width:${progress * 100}%"></div>
-          </div>
-          <div class="quest-progress-text">${delta} / ${quest.target}</div>
-        ` : ''}
+  const completedCount = quests.filter(q => q.completed).length;
+  const totalCount = quests.length;
+
+  const tabBtns = document.querySelectorAll('.quest-tab-btn');
+  tabBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.questType === activeQuestTab);
+  });
+
+  let html = '';
+
+  html += `<div class="quest-summary-bar">
+    <div class="quest-summary-left">
+      <span class="quest-summary-icon">${isDaily ? '☀️' : '📅'}</span>
+      <span class="quest-summary-text">${isDaily ? '每日任务' : '每周任务'}</span>
+    </div>
+    <div class="quest-summary-right">
+      <span class="quest-summary-count">${completedCount} / ${totalCount} 已完成</span>
+      <div class="quest-summary-progress">
+        <div class="quest-summary-progress-fill" style="width:${totalCount > 0 ? (completedCount / totalCount * 100) : 0}%"></div>
       </div>
-    `;
-    container.appendChild(div);
+    </div>
+  </div>`;
+
+  if (quests.length === 0) {
+    html += `<div class="quest-empty">
+      <div class="quest-empty-icon">📋</div>
+      <div class="quest-empty-text">暂无任务，请稍后再来~ (´・ω・\`)</div>
+    </div>`;
   }
 
-  // 每周任务
-  const weeklyHeader = document.createElement('div');
-  weeklyHeader.className = 'quest-section-title';
-  weeklyHeader.style.marginTop = '16px';
-  weeklyHeader.textContent = '每周任务 (每周刷新)';
-  container.appendChild(weeklyHeader);
-
-  const weeklySnap = gameState.quests.weeklySnapshot || {};
-  for (const quest of (gameState.quests.weekly || [])) {
+  for (const quest of quests) {
     const current = gameState.trackers[quest.stat] || 0;
-    const baseline = weeklySnap[quest.stat] || 0;
+    const baseline = snap[quest.stat] || 0;
     const delta = Math.max(0, current - baseline);
     const progress = Math.min(1, delta / quest.target);
+    const pctVal = Math.round(progress * 100);
 
-    const div = document.createElement('div');
-    div.className = 'quest-card' + (quest.completed ? ' completed' : '');
-    div.innerHTML = `
-      <div class="quest-info">
-        <div class="quest-desc">${quest.completed ? '✅' : '⬜'} ${quest.desc}</div>
-        <div class="quest-reward">奖励: 🪙${quest.coinReward} +${quest.xpReward}经验</div>
-        ${!quest.completed ? `
-          <div class="quest-progress">
-            <div class="quest-progress-fill" style="width:${progress * 100}%"></div>
-          </div>
-          <div class="quest-progress-text">${delta} / ${quest.target}</div>
-        ` : ''}
+    html += `<div class="quest-card ${quest.completed ? 'completed' : ''} ${pctVal >= 100 && !quest.completed ? 'ready-claim' : ''}">
+      <div class="quest-card-icon-wrap">
+        <span class="quest-card-icon">${quest.icon || '📌'}</span>
+        ${quest.completed ? '<span class="quest-check">✅</span>' : ''}
       </div>
-    `;
-    container.appendChild(div);
+      <div class="quest-card-body">
+        <div class="quest-card-title">${quest.desc}</div>
+        <div class="quest-card-flavor">${quest.flavor || ''}</div>
+        <div class="quest-progress-bar">
+          <div class="quest-progress-fill ${quest.completed ? 'done' : ''}" style="width:${quest.completed ? 100 : pctVal}%"></div>
+        </div>
+        <div class="quest-card-footer">
+          <span class="quest-progress-label">${quest.completed ? '已完成!' : `${delta} / ${quest.target}`}</span>
+          <span class="quest-card-reward">🪙 ${quest.coinReward} &nbsp; ✨ ${quest.xpReward}xp</span>
+        </div>
+      </div>
+    </div>`;
   }
+
+  if (completedCount === totalCount && totalCount > 0) {
+    html += `<div class="quest-all-done">
+      <span>🎉</span> 全部完成！太厉害了~ ヾ(≧▽≦*)o <span>🎉</span>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function bindQuestTabs() {
+  document.querySelectorAll('.quest-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeQuestTab = btn.dataset.questType || 'daily';
+      renderQuests();
+    });
+  });
 }
 
 // ============================================================
@@ -2526,8 +2593,9 @@ function spinWheel() {
     circle.style.transform = `rotate(${targetAngle}deg)`;
   }
 
+  gameState.trackers.wheelSpins = (gameState.trackers.wheelSpins || 0) + 1;
+
   setTimeout(() => {
-    // 发奖
     awardWheelPrize(prize);
     renderWheel();
   }, 3200);
@@ -2575,47 +2643,100 @@ function awardWheelPrize(prize) {
 // ============================================================
 // 烹饪系统
 // ============================================================
+const DIFFICULTY_INFO = [
+  null,
+  { name: '入门', icon: '⭐', color: '#8b949e' },
+  { name: '简单', icon: '⭐⭐', color: '#58a6ff' },
+  { name: '中级', icon: '⭐⭐⭐', color: '#3fb950' },
+  { name: '大师', icon: '⭐⭐⭐⭐', color: '#d29922' },
+  { name: '传说', icon: '⭐⭐⭐⭐⭐', color: '#f85149' },
+];
+
 function renderCooking() {
   const cookingArea = document.getElementById('cooking-area');
   if (!cookingArea) return;
-  cookingArea.innerHTML = '';
 
-  const title = document.createElement('div');
-  title.className = 'cooking-title';
-  title.textContent = '食谱大全';
-  cookingArea.appendChild(title);
+  const totalRecipes = RECIPES.length;
+  const cookedCount = gameState.cookedRecipes.length;
 
+  let html = '';
+
+  html += `<div class="cooking-header-bar">
+    <div class="cooking-header-left">
+      <span class="cooking-header-icon">👨‍🍳</span>
+      <span class="cooking-header-title">Clawd の 美食厨房</span>
+    </div>
+    <div class="cooking-header-right">
+      <span class="cooking-header-stat">📖 已解锁 ${cookedCount}/${totalRecipes} 道菜</span>
+    </div>
+  </div>`;
+
+  html += `<div class="cooking-progress-wrap">
+    <div class="cooking-progress-bar">
+      <div class="cooking-progress-fill" style="width:${totalRecipes > 0 ? (cookedCount / totalRecipes * 100) : 0}%"></div>
+    </div>
+    <div class="cooking-progress-label">${cookedCount === totalRecipes ? '🎉 全部解锁！你是料理之神！ヾ(≧▽≦*)o' : `还差 ${totalRecipes - cookedCount} 道菜解锁全图鉴~ (ง •̀_•́)ง`}</div>
+  </div>`;
+
+  const grouped = {};
   for (const recipe of RECIPES) {
-    const hasAll = recipe.ingredients.every((ing) => getInventoryQty(ing.id) >= ing.qty);
-    const cooked = gameState.cookedRecipes.includes(recipe.id);
+    const d = recipe.difficulty || 1;
+    if (!grouped[d]) grouped[d] = [];
+    grouped[d].push(recipe);
+  }
 
-    const card = document.createElement('div');
-    card.className = 'recipe-card' + (hasAll ? ' can-cook' : '') + (cooked ? ' cooked-before' : '');
-    card.innerHTML = `
-      <div class="recipe-header">
-        <span class="recipe-icon">${recipe.icon}</span>
-        <span class="recipe-name">${recipe.name}</span>
-        <span class="recipe-value">售价: 🪙${recipe.value}</span>
+  for (const [diff, recipes] of Object.entries(grouped)) {
+    const info = DIFFICULTY_INFO[diff] || DIFFICULTY_INFO[1];
+    html += `<div class="cooking-diff-section">
+      <div class="cooking-diff-header" style="border-left:3px solid ${info.color}">
+        <span class="cooking-diff-stars">${info.icon}</span>
+        <span class="cooking-diff-name" style="color:${info.color}">${info.name}料理</span>
+        <span class="cooking-diff-count">(${recipes.length}道)</span>
       </div>
-      <div class="recipe-ingredients">
-        ${recipe.ingredients.map((ing) => {
-          const def = findItemDef(ing.id);
-          const have = getInventoryQty(ing.id);
-          const enough = have >= ing.qty;
-          const icon = def ? def.icon : '📦';
-          const name = def ? def.name : ing.id;
-          return `<span class="recipe-ing ${enough ? 'have' : 'missing'}">${icon} ${name} x${ing.qty} (${have})</span>`;
-        }).join('')}
-      </div>
-      <button class="cook-btn" ${hasAll ? '' : 'disabled'}>${hasAll ? '开始烹饪' : '食材不足'}</button>
-    `;
+      <div class="cooking-grid">`;
 
-    if (hasAll) {
-      card.querySelector('.cook-btn').addEventListener('click', () => cookRecipe(recipe));
+    for (const recipe of recipes) {
+      const hasAll = recipe.ingredients.every((ing) => getInventoryQty(ing.id) >= ing.qty);
+      const cooked = gameState.cookedRecipes.includes(recipe.id);
+
+      html += `<div class="recipe-card ${hasAll ? 'can-cook' : ''} ${cooked ? 'cooked-before' : ''}" data-recipe-id="${recipe.id}">
+        <div class="recipe-card-top">
+          <span class="recipe-card-icon">${recipe.icon}</span>
+          ${cooked ? '<span class="recipe-cooked-badge">✅ 已解锁</span>' : ''}
+        </div>
+        <div class="recipe-card-name">${recipe.name}</div>
+        <div class="recipe-card-flavor">${recipe.flavor || ''}</div>
+        <div class="recipe-card-ings">
+          ${recipe.ingredients.map((ing) => {
+            const def = findItemDef(ing.id);
+            const have = getInventoryQty(ing.id);
+            const enough = have >= ing.qty;
+            const icon = def ? def.icon : '📦';
+            const name = def ? def.name : ing.id;
+            return `<span class="recipe-ing-tag ${enough ? 'have' : 'missing'}">${icon} ${name} <span class="ing-qty">${have}/${ing.qty}</span></span>`;
+          }).join('')}
+        </div>
+        <div class="recipe-card-bottom">
+          <span class="recipe-card-value">🪙 ${recipe.value}</span>
+          <span class="recipe-card-xp">✨ ${recipe.xp}xp</span>
+        </div>
+        <button class="recipe-cook-btn ${hasAll ? '' : 'disabled'}" ${hasAll ? '' : 'disabled'} data-recipe-id="${recipe.id}">
+          ${hasAll ? '🔥 开始烹饪！' : '🔒 食材不足'}
+        </button>
+      </div>`;
     }
 
-    cookingArea.appendChild(card);
+    html += `</div></div>`;
   }
+
+  cookingArea.innerHTML = html;
+
+  cookingArea.querySelectorAll('.recipe-cook-btn:not(.disabled)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const recipe = RECIPES.find(r => r.id === btn.dataset.recipeId);
+      if (recipe) cookRecipe(recipe);
+    });
+  });
 }
 
 function cookRecipe(recipe) {
@@ -3339,6 +3460,7 @@ function startBattle(opponentId) {
   battleState.log.push('战斗开始！');
 
   gameState.battle.inBattle = true;
+  gameState.trackers.battlesStarted = (gameState.trackers.battlesStarted || 0) + 1;
   renderBattleField();
 }
 
