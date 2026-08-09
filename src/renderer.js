@@ -183,7 +183,7 @@ const TIMINGS = {
 
 const clawdObj = document.getElementById("clawd");
 const petContainer = document.getElementById("pet-container");
-const contextMenu = document.getElementById("context-menu");
+
 
 let currentState = "idle";
 let currentFile = "";
@@ -515,7 +515,7 @@ if (window.electronAPI.onUserTyping) {
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
-    contextMenu.classList.add("hidden");
+    // no-op: native context menu handles its own dismissal
   }
 });
 
@@ -674,55 +674,19 @@ petContainer.addEventListener("click", (e) => {
   }
 });
 
-// --- Context Menu ---
+// --- Context Menu (native, via IPC) ---
 petContainer.addEventListener("contextmenu", (e) => {
   e.preventDefault();
-  const menu = contextMenu;
-  menu.classList.remove("hidden");
-
-  let x = e.clientX;
-  let y = e.clientY;
-
-  const menuW = 160;
-  const menuH = menu.offsetHeight || 300;
-  if (x + menuW > window.innerWidth) x = window.innerWidth - menuW;
-  if (y + menuH > window.innerHeight) y = Math.max(0, y - menuH);
-
-  menu.style.left = `${x}px`;
-  menu.style.top = `${y}px`;
-
-  document.querySelectorAll(".menu-item").forEach((item) => {
-    item.classList.remove("active");
-    if (item.dataset.action === "auto" && isAutoMode) {
-      item.classList.add("active");
-      item.textContent = "自动模式 (开)";
-    } else if (item.dataset.action === "auto") {
-      item.textContent = "自动模式 (关)";
-    }
-  });
+  window.electronAPI.showContextMenu();
 });
 
-document.addEventListener("click", (e) => {
-  if (
-    !contextMenu.contains(e.target) &&
-    !contextMenu.classList.contains("hidden")
-  ) {
-    contextMenu.classList.add("hidden");
-  }
-});
-
-document.querySelectorAll(".menu-item").forEach((item) => {
-  item.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const action = item.dataset.action;
-    contextMenu.classList.add("hidden");
-
-    if (action === "game-panel") {
-      window.electronAPI.openGamePanel();
-      return;
-    }
-
-    if (action === "auto") {
+if (window.electronAPI.onAnimationCommandAction) {
+  window.electronAPI.onAnimationCommandAction((action) => {
+    if (action === "sleep") {
+      startSleepSequence();
+    } else if (action === "roam") {
+      setState("roam");
+    } else if (action === "auto-toggle") {
       isAutoMode = !isAutoMode;
       if (isAutoMode) {
         startAutoMode();
@@ -730,28 +694,9 @@ document.querySelectorAll(".menu-item").forEach((item) => {
         stopAutoMode();
         setState("idle");
       }
-      return;
-    }
-
-    stopAutoMode();
-    isAutoMode = false;
-    isInSleepSequence = false;
-    if (reactionTimer) {
-      clearTimeout(reactionTimer);
-      reactionTimer = null;
-    }
-
-    if (action === "sleep") {
-      startSleepSequence();
-    } else if (action === "roam") {
-      setState("roam");
-    } else if (STATE_FILES[action]) {
-      setState(action);
-      if (action === "happy") playSound("confirm.mp3");
-      if (action === "notification") playSound("complete.mp3");
     }
   });
-});
+}
 
 // --- Initialize ---
 loadSVG("idle");

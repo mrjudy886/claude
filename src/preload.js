@@ -12,4 +12,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   onGameStateUpdate: (cb) =>
     ipcRenderer.on("game-state-update", (_, data) => cb(data)),
   getGameState: () => ipcRenderer.invoke("get-game-state"),
+  showContextMenu: () => ipcRenderer.send("show-pet-context-menu"),
+  onAnimationCommandAction: (cb) => ipcRenderer.on("set-animation-command", (_, action) => cb(action)),
 });

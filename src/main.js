@@ -474,6 +474,23 @@ ipcMain.on("set-pet-animation", (_, anim) => {
   }
 });
 
+ipcMain.on("show-pet-context-menu", (event) => {
+  const template = [
+    { label: "🎮 游戏面板", click: () => createGameWindow() },
+    { type: "separator" },
+    { label: "待机", click: () => { if (petWindow && !petWindow.isDestroyed()) petWindow.webContents.send("set-animation", "idle"); } },
+    { label: "思考", click: () => { if (petWindow && !petWindow.isDestroyed()) petWindow.webContents.send("set-animation", "thinking"); } },
+    { label: "工作", click: () => { if (petWindow && !petWindow.isDestroyed()) petWindow.webContents.send("set-animation", "working"); } },
+    { label: "开心", click: () => { if (petWindow && !petWindow.isDestroyed()) petWindow.webContents.send("set-animation", "happy"); } },
+    { label: "睡觉", click: () => { if (petWindow && !petWindow.isDestroyed()) petWindow.webContents.send("set-animation-command", "sleep"); } },
+    { label: "散步", click: () => { if (petWindow && !petWindow.isDestroyed()) petWindow.webContents.send("set-animation-command", "roam"); } },
+    { type: "separator" },
+    { label: "自动模式", click: () => { if (petWindow && !petWindow.isDestroyed()) petWindow.webContents.send("set-animation-command", "auto-toggle"); } },
+  ];
+  const menu = Menu.buildFromTemplate(template);
+  menu.popup({ window: BrowserWindow.fromWebContents(event.sender) });
+});
+
 // ─── Keyboard Activity Detection ───
 let lastKeyActivity = 0;
 let keyActivityTimer = null;
