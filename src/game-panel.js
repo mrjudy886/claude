@@ -303,6 +303,23 @@ function createDefaultState() {
     quests: { daily: [], weekly: [], lastDailyRefresh: 0, lastWeeklyRefresh: 0 },
     wheel: { lastFreeSpin: 0 },
     fishing: { rodLevel: 0 },
+    battle: {
+      petHP: 100,
+      petMaxHP: 100,
+      petAttack: 10,
+      petDefense: 5,
+      petSpeed: 8,
+      skills: [
+        { id: 'scratch', name: '抓击', icon: '🐾', damage: 15, type: 'normal', cooldown: 0, maxCooldown: 0, desc: '基础物理攻击' },
+        { id: 'bite', name: '撕咬', icon: '🦷', damage: 22, type: 'normal', cooldown: 0, maxCooldown: 1, desc: '用力咬一口' },
+      ],
+      stolenSkills: [],
+      battleWins: 0,
+      battleLosses: 0,
+      currentOpponent: null,
+      battleLog: [],
+      inBattle: false,
+    },
     lastUpdate: Date.now(),
     firstPlayTime: Date.now(),
   };
@@ -323,6 +340,10 @@ let fishingState = null; // { phase, timer, baitId }
 // 初始化
 // ============================================================
 async function init() {
+  // CRITICAL: Bind tabs FIRST before anything else can throw
+  bindTabs();
+  bindTitleBar();
+
   try {
     if (window.electronAPI && window.electronAPI.getGameState) {
       const saved = await window.electronAPI.getGameState();
@@ -331,17 +352,28 @@ async function init() {
       }
     }
   } catch (e) {
-    console.log('无法加载存档，使用默认状态');
+    console.error('无法加载存档，使用默认状态', e);
   }
 
-  catchUpTime();
-  refreshQuests();
+  try {
+    catchUpTime();
+  } catch (e) {
+    console.error('catchUpTime error:', e);
+  }
 
-  bindTabs();
+  try {
+    refreshQuests();
+  } catch (e) {
+    console.error('refreshQuests error:', e);
+  }
+
   bindStatusActions();
-  bindTitleBar();
 
-  renderAll();
+  try {
+    renderAll();
+  } catch (e) {
+    console.error('renderAll error:', e);
+  }
 
   statusIntervalId = setInterval(tickStatus, 1000);
   gardenIntervalId = setInterval(tickGarden, 1000);
@@ -353,8 +385,12 @@ async function init() {
   if (window.electronAPI && window.electronAPI.onGameStateUpdate) {
     window.electronAPI.onGameStateUpdate((data) => {
       if (data && data.stats) {
-        gameState = mergeState(data);
-        renderAll();
+        try {
+          gameState = mergeState(data);
+          renderAll();
+        } catch (e) {
+          console.error('state update error:', e);
+        }
       }
     });
   }
@@ -375,6 +411,7 @@ function mergeState(saved) {
     quests: { ...def.quests, ...(saved.quests || {}) },
     wheel: { ...def.wheel, ...(saved.wheel || {}) },
     fishing: { ...def.fishing, ...(saved.fishing || {}) },
+    battle: { ...(def.battle || {}), ...(saved.battle || {}), skills: saved.battle?.skills || def.battle.skills, stolenSkills: saved.battle?.stolenSkills || [] },
   };
 }
 
@@ -446,6 +483,7 @@ function bindTabs() {
         case 'wheel': renderWheel(); break;
         case 'cooking': renderCooking(); break;
         case 'fishing': renderFishing(); break;
+        case 'battle': renderBattle(); break;
       }
     });
   });
@@ -648,6 +686,20 @@ function handleStatusAction(action) {
       }
       gameState.trackers.timesCleaning++;
       triggerPetAnimation('life-shower');
+      addXp(3);
+      break;
+    }
+    case 'heal': {
+      const medQty = getInventoryQty('medicine');
+      if (medQty > 0) {
+        removeFromInventory('medicine', 1);
+        s.health = Math.min(100, s.health + 30);
+        showToast('使用药品治疗了 Clawd！', 'success');
+      } else {
+        s.health = Math.min(100, s.health + 10);
+        showToast('简单治疗了一下，买药品效果更好！', 'info');
+      }
+      triggerPetAnimation('emotion-love');
       addXp(3);
       break;
     }
@@ -2714,6 +2766,472 @@ function formatEffect(effect) {
   return parts.join(', ');
 }
 
+// ============================================================
+// 对战系统 (赛尔号风格)
+// ============================================================
+const NPC_OPPONENTS = [
+  {
+    id: 'slime', name: '史莱姆', icon: '🟢', level: 1,
+    hp: 60, attack: 6, defense: 3, speed: 5,
+    skills: [
+      { id: 'bounce', name: '弹跳', icon: '🔵', damage: 10, type: 'normal', desc: '弹跳攻击' },
+      { id: 'sticky', name: '黏液', icon: '💧', damage: 8, type: 'water', desc: '黏糊糊的攻击' },
+    ],
+    reward: { coins: 15, xp: 10 },
+    stealChance: 0.25,
+  },
+  {
+    id: 'fire_fox', name: '火焰狐', icon: '🦊', level: 3,
+    hp: 80, attack: 12, defense: 5, speed: 10,
+    skills: [
+      { id: 'ember', name: '火花', icon: '🔥', damage: 18, type: 'fire', desc: '喷射小火焰' },
+      { id: 'flame_tail', name: '烈焰尾击', icon: '🌋', damage: 25, type: 'fire', desc: '用燃烧的尾巴攻击', maxCooldown: 2 },
+      { id: 'fox_agility', name: '灵动', icon: '💨', damage: 0, type: 'buff', desc: '提升速度', buff: { speed: 5 } },
+    ],
+    reward: { coins: 25, xp: 18 },
+    stealChance: 0.20,
+  },
+  {
+    id: 'ice_bear', name: '冰霜熊', icon: '🐻‍❄️', level: 5,
+    hp: 120, attack: 14, defense: 10, speed: 4,
+    skills: [
+      { id: 'ice_claw', name: '冰爪', icon: '🧊', damage: 20, type: 'ice', desc: '冰冻利爪攻击' },
+      { id: 'frost_breath', name: '寒冰吐息', icon: '❄️', damage: 28, type: 'ice', desc: '吐出冰霜', maxCooldown: 2 },
+      { id: 'bear_guard', name: '熊之守护', icon: '🛡️', damage: 0, type: 'buff', desc: '提升防御', buff: { defense: 8 } },
+    ],
+    reward: { coins: 40, xp: 30 },
+    stealChance: 0.15,
+  },
+  {
+    id: 'thunder_hawk', name: '雷电鹰', icon: '🦅', level: 8,
+    hp: 100, attack: 18, defense: 7, speed: 15,
+    skills: [
+      { id: 'thunder_strike', name: '雷击', icon: '⚡', damage: 24, type: 'electric', desc: '从空中发动雷击' },
+      { id: 'wind_blade', name: '风刃', icon: '🌀', damage: 20, type: 'wind', desc: '锋利的风之刃' },
+      { id: 'dive_bomb', name: '俯冲轰炸', icon: '💥', damage: 35, type: 'normal', desc: '高速俯冲攻击', maxCooldown: 3 },
+    ],
+    reward: { coins: 60, xp: 45 },
+    stealChance: 0.12,
+  },
+  {
+    id: 'shadow_wolf', name: '暗影狼', icon: '🐺', level: 10,
+    hp: 110, attack: 20, defense: 8, speed: 12,
+    skills: [
+      { id: 'shadow_bite', name: '暗影撕咬', icon: '🌑', damage: 26, type: 'dark', desc: '暗影之力附身攻击' },
+      { id: 'howl', name: '嚎叫', icon: '🌙', damage: 0, type: 'buff', desc: '提升攻击力', buff: { attack: 6 } },
+      { id: 'pack_hunt', name: '群狼围猎', icon: '🐺', damage: 40, type: 'dark', desc: '召唤同伴一起攻击', maxCooldown: 3 },
+    ],
+    reward: { coins: 80, xp: 60 },
+    stealChance: 0.10,
+  },
+  {
+    id: 'crystal_dragon', name: '水晶龙', icon: '🐉', level: 15,
+    hp: 180, attack: 25, defense: 15, speed: 10,
+    skills: [
+      { id: 'crystal_breath', name: '水晶吐息', icon: '💎', damage: 32, type: 'crystal', desc: '吐出水晶碎片' },
+      { id: 'dragon_claw', name: '龙爪', icon: '🐲', damage: 28, type: 'normal', desc: '强力龙爪攻击' },
+      { id: 'crystal_shield', name: '水晶护盾', icon: '🔮', damage: 0, type: 'buff', desc: '大幅提升防御', buff: { defense: 12 } },
+      { id: 'dragon_rage', name: '龙之怒', icon: '🔥', damage: 50, type: 'fire', desc: '愤怒的龙息', maxCooldown: 4 },
+    ],
+    reward: { coins: 120, xp: 90 },
+    stealChance: 0.08,
+  },
+  {
+    id: 'phoenix', name: '不死鸟', icon: '🔥', level: 20,
+    hp: 200, attack: 30, defense: 12, speed: 14,
+    skills: [
+      { id: 'phoenix_fire', name: '凤凰之火', icon: '🔥', damage: 35, type: 'fire', desc: '神圣火焰攻击' },
+      { id: 'rebirth_flame', name: '重生之焰', icon: '✨', damage: 0, type: 'heal', desc: '恢复30%HP', healPercent: 30 },
+      { id: 'sun_blast', name: '烈日爆破', icon: '☀️', damage: 45, type: 'fire', desc: '太阳能量爆发', maxCooldown: 3 },
+      { id: 'phoenix_wing', name: '凤翼天翔', icon: '🦅', damage: 55, type: 'wind', desc: '展翅攻击', maxCooldown: 4 },
+    ],
+    reward: { coins: 200, xp: 150 },
+    stealChance: 0.05,
+  },
+  {
+    id: 'void_king', name: '虚空之王', icon: '👾', level: 30,
+    hp: 300, attack: 35, defense: 20, speed: 12,
+    skills: [
+      { id: 'void_blast', name: '虚空冲击', icon: '🌀', damage: 40, type: 'dark', desc: '虚空能量冲击' },
+      { id: 'dimension_rift', name: '次元裂缝', icon: '🕳️', damage: 55, type: 'dark', desc: '撕裂空间', maxCooldown: 3 },
+      { id: 'void_shield', name: '虚空屏障', icon: '🛡️', damage: 0, type: 'buff', desc: '虚空护盾', buff: { defense: 15 } },
+      { id: 'annihilation', name: '湮灭', icon: '💀', damage: 70, type: 'dark', desc: '终极毁灭攻击', maxCooldown: 5 },
+    ],
+    reward: { coins: 500, xp: 300 },
+    stealChance: 0.03,
+  },
+];
+
+const LEARNABLE_SKILLS_BY_LEVEL = [
+  { level: 2, skill: { id: 'power_strike', name: '力量打击', icon: '💪', damage: 20, type: 'normal', cooldown: 0, maxCooldown: 1, desc: '集中力量的攻击' } },
+  { level: 4, skill: { id: 'quick_dash', name: '疾风冲刺', icon: '💨', damage: 18, type: 'wind', cooldown: 0, maxCooldown: 0, desc: '快速冲刺攻击' } },
+  { level: 6, skill: { id: 'fire_punch', name: '烈焰拳', icon: '🔥', damage: 25, type: 'fire', cooldown: 0, maxCooldown: 2, desc: '燃烧的拳头' } },
+  { level: 8, skill: { id: 'ice_beam', name: '冰冻光线', icon: '❄️', damage: 28, type: 'ice', cooldown: 0, maxCooldown: 2, desc: '极寒光线' } },
+  { level: 10, skill: { id: 'thunder_bolt', name: '雷电球', icon: '⚡', damage: 30, type: 'electric', cooldown: 0, maxCooldown: 2, desc: '雷电能量球' } },
+  { level: 13, skill: { id: 'shadow_strike', name: '暗影突袭', icon: '🌑', damage: 32, type: 'dark', cooldown: 0, maxCooldown: 2, desc: '暗影中突然袭击' } },
+  { level: 16, skill: { id: 'crystal_cannon', name: '水晶炮', icon: '💎', damage: 38, type: 'crystal', cooldown: 0, maxCooldown: 3, desc: '水晶能量炮击' } },
+  { level: 20, skill: { id: 'mega_strike', name: '超级打击', icon: '⭐', damage: 45, type: 'normal', cooldown: 0, maxCooldown: 3, desc: '超强力打击' } },
+  { level: 25, skill: { id: 'dragon_breath', name: '龙息术', icon: '🐲', damage: 50, type: 'fire', cooldown: 0, maxCooldown: 4, desc: '龙之吐息' } },
+  { level: 30, skill: { id: 'ultimate_blast', name: '终极爆破', icon: '💥', damage: 60, type: 'normal', cooldown: 0, maxCooldown: 5, desc: '最强大的攻击技能' } },
+];
+
+// Battle state (not persisted, per-session)
+let battleState = null;
+
+function getBattlePetStats() {
+  const b = gameState.battle;
+  const lvl = gameState.level;
+  return {
+    name: gameState.petName,
+    icon: '🐱',
+    hp: b.petMaxHP + (lvl - 1) * 8,
+    maxHP: b.petMaxHP + (lvl - 1) * 8,
+    attack: b.petAttack + (lvl - 1) * 2,
+    defense: b.petDefense + Math.floor((lvl - 1) * 1.5),
+    speed: b.petSpeed + Math.floor((lvl - 1) * 0.8),
+    skills: [...b.skills, ...b.stolenSkills].map(s => ({...s, cooldown: 0})),
+    level: lvl,
+  };
+}
+
+function startBattle(opponentId) {
+  const opp = NPC_OPPONENTS.find(o => o.id === opponentId);
+  if (!opp) return;
+
+  const petStats = getBattlePetStats();
+  battleState = {
+    pet: { ...petStats },
+    opponent: {
+      ...opp,
+      currentHP: opp.hp,
+      maxHP: opp.hp,
+      skills: opp.skills.map(s => ({...s, cooldown: 0})),
+      buffedAttack: opp.attack,
+      buffedDefense: opp.defense,
+      buffedSpeed: opp.speed,
+    },
+    log: [],
+    turn: 0,
+    phase: 'player_turn',
+    stealAttempted: false,
+    petBuffedAttack: petStats.attack,
+    petBuffedDefense: petStats.defense,
+    petBuffedSpeed: petStats.speed,
+  };
+
+  battleState.log.push(`⚔️ ${petStats.name} VS ${opp.icon} ${opp.name} (Lv.${opp.level})`);
+  battleState.log.push('战斗开始！');
+
+  gameState.battle.inBattle = true;
+  renderBattleField();
+}
+
+function playerUseSkill(skillIndex) {
+  if (!battleState || battleState.phase !== 'player_turn') return;
+
+  const pet = battleState.pet;
+  const opp = battleState.opponent;
+  const allSkills = pet.skills;
+  const skill = allSkills[skillIndex];
+  if (!skill) return;
+  if (skill.cooldown > 0) {
+    showToast(`${skill.name} 冷却中 (${skill.cooldown}回合)`, 'error');
+    return;
+  }
+
+  battleState.turn++;
+
+  // Player attacks
+  if (skill.type === 'buff' && skill.buff) {
+    if (skill.buff.attack) battleState.petBuffedAttack += skill.buff.attack;
+    if (skill.buff.defense) battleState.petBuffedDefense += skill.buff.defense;
+    if (skill.buff.speed) battleState.petBuffedSpeed += skill.buff.speed;
+    battleState.log.push(`🐱 使用了 ${skill.icon} ${skill.name}！属性提升了！`);
+  } else if (skill.type === 'heal' && skill.healPercent) {
+    const heal = Math.floor(pet.maxHP * skill.healPercent / 100);
+    pet.hp = Math.min(pet.maxHP, pet.hp + heal);
+    battleState.log.push(`🐱 使用了 ${skill.icon} ${skill.name}！恢复了 ${heal} HP！`);
+  } else {
+    const atk = battleState.petBuffedAttack;
+    const def = opp.buffedDefense;
+    const baseDmg = skill.damage + atk - def;
+    const variance = 0.85 + Math.random() * 0.3;
+    const crit = Math.random() < 0.1;
+    let dmg = Math.max(1, Math.floor(baseDmg * variance));
+    if (crit) dmg = Math.floor(dmg * 1.5);
+    opp.currentHP = Math.max(0, opp.currentHP - dmg);
+    battleState.log.push(`🐱 使用了 ${skill.icon} ${skill.name}！${crit ? '💥暴击！' : ''}造成 ${dmg} 点伤害！`);
+  }
+
+  if (skill.maxCooldown) skill.cooldown = skill.maxCooldown;
+  // Reduce all skill cooldowns
+  allSkills.forEach(s => { if (s !== skill && s.cooldown > 0) s.cooldown--; });
+
+  if (opp.currentHP <= 0) {
+    battleWin();
+    return;
+  }
+
+  // Opponent turn
+  battleState.phase = 'opponent_turn';
+  setTimeout(() => opponentTurn(), 800);
+  renderBattleField();
+}
+
+function opponentTurn() {
+  if (!battleState) return;
+  const pet = battleState.pet;
+  const opp = battleState.opponent;
+
+  // Pick a skill (AI: prefer higher damage, use buffs sometimes)
+  const usable = opp.skills.filter(s => !s.cooldown || s.cooldown <= 0);
+  if (usable.length === 0) {
+    battleState.log.push(`${opp.icon} ${opp.name} 无法行动！`);
+    battleState.phase = 'player_turn';
+    renderBattleField();
+    return;
+  }
+
+  const skill = usable[Math.floor(Math.random() * usable.length)];
+
+  if (skill.type === 'buff' && skill.buff) {
+    if (skill.buff.attack) opp.buffedAttack += skill.buff.attack;
+    if (skill.buff.defense) opp.buffedDefense += skill.buff.defense;
+    if (skill.buff.speed) opp.buffedSpeed += skill.buff.speed;
+    battleState.log.push(`${opp.icon} 使用了 ${skill.icon} ${skill.name}！属性提升了！`);
+  } else if (skill.type === 'heal' && skill.healPercent) {
+    const heal = Math.floor(opp.maxHP * skill.healPercent / 100);
+    opp.currentHP = Math.min(opp.maxHP, opp.currentHP + heal);
+    battleState.log.push(`${opp.icon} 使用了 ${skill.icon} ${skill.name}！恢复了 ${heal} HP！`);
+  } else {
+    const atk = opp.buffedAttack;
+    const def = battleState.petBuffedDefense;
+    const baseDmg = skill.damage + atk - def;
+    const variance = 0.85 + Math.random() * 0.3;
+    const crit = Math.random() < 0.1;
+    let dmg = Math.max(1, Math.floor(baseDmg * variance));
+    if (crit) dmg = Math.floor(dmg * 1.5);
+    pet.hp = Math.max(0, pet.hp - dmg);
+    battleState.log.push(`${opp.icon} 使用了 ${skill.icon} ${skill.name}！${crit ? '💥暴击！' : ''}造成 ${dmg} 点伤害！`);
+  }
+
+  if (skill.maxCooldown) skill.cooldown = skill.maxCooldown;
+  opp.skills.forEach(s => { if (s !== skill && s.cooldown > 0) s.cooldown--; });
+
+  if (pet.hp <= 0) {
+    battleLose();
+    return;
+  }
+
+  battleState.phase = 'player_turn';
+  renderBattleField();
+}
+
+function attemptSteal() {
+  if (!battleState || battleState.stealAttempted) {
+    showToast('本次战斗已经尝试过夺取技能了！', 'error');
+    return;
+  }
+  battleState.stealAttempted = true;
+  const opp = NPC_OPPONENTS.find(o => o.id === battleState.opponent.id);
+  if (!opp) return;
+
+  const chance = opp.stealChance;
+  const oppHPPercent = battleState.opponent.currentHP / battleState.opponent.maxHP;
+  const adjustedChance = chance + (1 - oppHPPercent) * 0.15;
+
+  if (Math.random() < adjustedChance) {
+    const stealable = opp.skills.filter(s => {
+      const allMySkills = [...gameState.battle.skills, ...gameState.battle.stolenSkills];
+      return !allMySkills.some(ms => ms.id === s.id);
+    });
+    if (stealable.length > 0) {
+      const stolen = stealable[Math.floor(Math.random() * stealable.length)];
+      const newSkill = { ...stolen, cooldown: 0 };
+      gameState.battle.stolenSkills.push(newSkill);
+      battleState.pet.skills.push({ ...newSkill });
+      battleState.log.push(`🎉 成功夺取了 ${stolen.icon} ${stolen.name}！`);
+      showToast(`学会了新技能: ${stolen.icon} ${stolen.name}！`, 'achievement');
+    } else {
+      battleState.log.push('对手的技能你都已经学会了！');
+    }
+  } else {
+    battleState.log.push('❌ 夺取技能失败！');
+    showToast('夺取失败！对手HP越低成功率越高', 'error');
+  }
+
+  // This counts as a turn, opponent attacks
+  battleState.phase = 'opponent_turn';
+  setTimeout(() => opponentTurn(), 800);
+  renderBattleField();
+}
+
+function battleWin() {
+  if (!battleState) return;
+  const opp = NPC_OPPONENTS.find(o => o.id === battleState.opponent.id);
+  gameState.battle.battleWins++;
+  gameState.battle.inBattle = false;
+
+  if (opp) {
+    addCoins(opp.reward.coins);
+    addXp(opp.reward.xp);
+    battleState.log.push(`🎉 胜利！获得 ${opp.reward.coins} 金币 + ${opp.reward.xp} 经验`);
+  }
+
+  // Check for new skills learned by level
+  checkBattleLevelSkills();
+
+  battleState.phase = 'victory';
+  triggerPetAnimation('emotion-excited');
+  updateQuestProgress();
+  checkAchievements();
+  renderBattleField();
+}
+
+function battleLose() {
+  if (!battleState) return;
+  gameState.battle.battleLosses++;
+  gameState.battle.inBattle = false;
+  battleState.log.push('💀 战斗失败...下次再努力吧！');
+  battleState.phase = 'defeat';
+  triggerPetAnimation('emotion-cry');
+  renderBattleField();
+}
+
+function fleeBattle() {
+  if (!battleState) return;
+  gameState.battle.inBattle = false;
+  battleState = null;
+  showToast('成功逃跑了！', 'info');
+  renderBattle();
+}
+
+function checkBattleLevelSkills() {
+  const lvl = gameState.level;
+  for (const entry of LEARNABLE_SKILLS_BY_LEVEL) {
+    if (lvl >= entry.level) {
+      const allSkills = [...gameState.battle.skills, ...gameState.battle.stolenSkills];
+      if (!allSkills.some(s => s.id === entry.skill.id)) {
+        gameState.battle.skills.push({ ...entry.skill, cooldown: 0 });
+        showToast(`等级${entry.level}解锁新技能: ${entry.skill.icon} ${entry.skill.name}！`, 'achievement');
+      }
+    }
+  }
+}
+
+function renderBattle() {
+  const area = document.getElementById('battle-area');
+  if (!area) return;
+
+  if (battleState && battleState.phase !== 'victory' && battleState.phase !== 'defeat') {
+    renderBattleField();
+    return;
+  }
+
+  // Show opponent selection
+  let html = '<div class="battle-stats">';
+  html += `<div class="battle-stat-row"><span>战绩</span><span>胜${gameState.battle.battleWins} / 负${gameState.battle.battleLosses}</span></div>`;
+  html += `<div class="battle-stat-row"><span>已学技能</span><span>${gameState.battle.skills.length + gameState.battle.stolenSkills.length}个</span></div>`;
+  html += '</div>';
+
+  html += '<div class="battle-section-title">选择对手</div>';
+  html += '<div class="opponent-list">';
+  for (const opp of NPC_OPPONENTS) {
+    const locked = gameState.level < Math.max(1, opp.level - 2);
+    html += `<div class="opponent-card ${locked ? 'locked' : ''}" ${locked ? '' : `onclick="startBattle('${opp.id}')"`}>`;
+    html += `<div class="opponent-icon">${opp.icon}</div>`;
+    html += `<div class="opponent-info">`;
+    html += `<div class="opponent-name">${locked ? '???' : opp.name} <span class="opponent-level">Lv.${opp.level}</span></div>`;
+    html += `<div class="opponent-detail">${locked ? `需要 Lv.${Math.max(1, opp.level - 2)} 解锁` : `奖励: ${opp.reward.coins}金币 ${opp.reward.xp}经验`}</div>`;
+    html += '</div></div>';
+  }
+  html += '</div>';
+
+  html += '<div class="battle-section-title">我的技能</div>';
+  html += '<div class="my-skills-list">';
+  const allSkills = [...gameState.battle.skills, ...gameState.battle.stolenSkills];
+  for (const skill of allSkills) {
+    html += `<div class="skill-tag"><span>${skill.icon}</span> ${skill.name} <span class="skill-dmg">${skill.damage > 0 ? skill.damage + '伤害' : skill.desc}</span></div>`;
+  }
+  html += '</div>';
+
+  area.innerHTML = html;
+}
+
+function renderBattleField() {
+  const area = document.getElementById('battle-area');
+  if (!area || !battleState) return;
+
+  const pet = battleState.pet;
+  const opp = battleState.opponent;
+  const petHPPct = Math.max(0, (pet.hp / pet.maxHP) * 100);
+  const oppHPPct = Math.max(0, (opp.currentHP / opp.maxHP) * 100);
+
+  let html = '<div class="battlefield">';
+
+  // Opponent side
+  html += '<div class="battle-entity opponent-side">';
+  html += `<div class="entity-name">${opp.icon} ${opp.name} <span class="entity-level">Lv.${opp.level}</span></div>`;
+  html += `<div class="hp-bar-battle"><div class="hp-bar-fill-battle opponent-hp" style="width:${oppHPPct}%"></div></div>`;
+  html += `<div class="hp-text">${Math.ceil(opp.currentHP)} / ${opp.maxHP}</div>`;
+  html += '</div>';
+
+  // VS
+  html += '<div class="vs-indicator">⚔️ VS</div>';
+
+  // Pet side
+  html += '<div class="battle-entity pet-side">';
+  html += `<div class="entity-name">🐱 ${pet.name} <span class="entity-level">Lv.${pet.level}</span></div>`;
+  html += `<div class="hp-bar-battle"><div class="hp-bar-fill-battle pet-hp" style="width:${petHPPct}%"></div></div>`;
+  html += `<div class="hp-text">${Math.ceil(pet.hp)} / ${pet.maxHP}</div>`;
+  html += '</div>';
+
+  html += '</div>'; // .battlefield
+
+  // Battle log
+  html += '<div class="battle-log">';
+  const recentLogs = battleState.log.slice(-6);
+  for (const log of recentLogs) {
+    html += `<div class="log-entry">${log}</div>`;
+  }
+  html += '</div>';
+
+  // Actions
+  if (battleState.phase === 'player_turn') {
+    html += '<div class="battle-actions">';
+    html += '<div class="battle-skills">';
+    pet.skills.forEach((skill, i) => {
+      const disabled = skill.cooldown > 0;
+      html += `<button class="battle-skill-btn ${disabled ? 'on-cooldown' : ''}" ${disabled ? 'disabled' : `onclick="playerUseSkill(${i})"`} title="${skill.desc}">`;
+      html += `<span class="skill-btn-icon">${skill.icon}</span>`;
+      html += `<span class="skill-btn-name">${skill.name}</span>`;
+      if (disabled) html += `<span class="skill-cd">${skill.cooldown}回合</span>`;
+      else if (skill.damage > 0) html += `<span class="skill-btn-dmg">${skill.damage}</span>`;
+      html += '</button>';
+    });
+    html += '</div>';
+    html += '<div class="battle-extra-actions">';
+    html += `<button class="battle-action-btn steal-btn" ${battleState.stealAttempted ? 'disabled' : ''} onclick="attemptSteal()">🎯 夺取技能</button>`;
+    html += '<button class="battle-action-btn flee-btn" onclick="fleeBattle()">🏃 逃跑</button>';
+    html += '</div>';
+    html += '</div>';
+  } else if (battleState.phase === 'opponent_turn') {
+    html += '<div class="battle-waiting">对手行动中...</div>';
+  } else if (battleState.phase === 'victory') {
+    html += '<div class="battle-result victory">';
+    html += '<div class="result-title">🎉 胜利！</div>';
+    html += '<button class="battle-action-btn" onclick="battleState=null;renderBattle()">返回</button>';
+    html += '</div>';
+  } else if (battleState.phase === 'defeat') {
+    html += '<div class="battle-result defeat">';
+    html += '<div class="result-title">💀 失败</div>';
+    html += '<button class="battle-action-btn" onclick="battleState=null;renderBattle()">返回</button>';
+    html += '</div>';
+  }
+
+  area.innerHTML = html;
+}
+
 function renderAll() {
   renderTopBar();
   renderStatus();
@@ -2726,6 +3244,7 @@ function renderAll() {
   renderWheel();
   renderCooking();
   renderFishing();
+  renderBattle();
 }
 
 // ============================================================
