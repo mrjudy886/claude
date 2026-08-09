@@ -63,6 +63,23 @@ const SHOP_ITEMS = [
   { id: 'halo', name: '光环', icon: '😇', type: 'decoration', category: 'decoration', price: 300, effect: { happiness: 25 }, desc: '神圣的光芒' },
   { id: 'dragon_set', name: '龙之套装', icon: '🐉', type: 'decoration', category: 'decoration', price: 500, effect: { happiness: 40 }, desc: '传说中的龙族装备' },
 
+  // --- 稀有 (15) ---
+  { id: 'phoenix_feather', name: '凤凰羽', icon: '🪶', type: 'rare', category: 'rare', price: 300, effect: { health: 50, energy: 30 }, desc: '传说中凤凰落下的羽毛，蕴含重生之力 🔥', consumable: true },
+  { id: 'dragon_heart', name: '龙之心', icon: '💗', type: 'rare', category: 'rare', price: 500, effect: { hunger: 50, happiness: 30, energy: 30, health: 20 }, desc: '龙族核心精华，全属性大幅提升 🐲', consumable: true },
+  { id: 'starlight_elixir', name: '星光药剂', icon: '🌟', type: 'rare', category: 'rare', price: 400, effect: { happiness: 60, energy: 40 }, desc: '用星尘酿造的神秘药剂，喝下后心情大好 ✨', consumable: true },
+  { id: 'void_crystal', name: '虚空水晶', icon: '🔮', type: 'rare', category: 'rare', price: 600, effect: { energy: 80 }, desc: '蕴含虚空能量的水晶，瞬间精力充沛 🌀', consumable: true },
+  { id: 'celestial_fruit', name: '天界仙果', icon: '🍑', type: 'rare', category: 'rare', price: 450, effect: { hunger: 80, health: 30 }, desc: '天界圣树结出的果实，食之延年益寿 🌈', consumable: true },
+  { id: 'eternal_spring', name: '永恒之泉', icon: '💧', type: 'rare', category: 'rare', price: 350, effect: { cleanliness: 100, happiness: 20 }, desc: '永不干涸的神泉水，一滴即净 🫧', consumable: true },
+  { id: 'chaos_gem', name: '混沌宝石', icon: '💠', type: 'rare', category: 'rare', price: 800, effect: { hunger: 40, happiness: 40, energy: 40, cleanliness: 40, health: 40 }, desc: '蕴含混沌之力的宝石，全属性恢复 🌌', consumable: true },
+  { id: 'time_hourglass', name: '时之沙漏', icon: '⏳', type: 'rare', category: 'rare', price: 250, desc: '倒转时间的沙漏，加速花园所有作物 ⏰', consumable: true },
+  { id: 'lucky_clover', name: '四叶草', icon: '🍀', type: 'rare', category: 'rare', price: 200, effect: { happiness: 30 }, desc: '传说中的幸运四叶草，增加幸运值 🌈', consumable: true },
+  { id: 'moon_tear', name: '月之泪', icon: '🌙', type: 'rare', category: 'rare', price: 550, effect: { health: 60, happiness: 20 }, desc: '月光凝结而成的晶莹泪滴 💫', consumable: true },
+  { id: 'sun_essence', name: '太阳精华', icon: '☀️', type: 'rare', category: 'rare', price: 650, effect: { energy: 60, hunger: 30, happiness: 20 }, desc: '凝聚太阳核心能量的精华液 🔆', consumable: true },
+  { id: 'rainbow_gem', name: '彩虹宝石', icon: '🌈', type: 'rare', category: 'rare', price: 1000, effect: { happiness: 80 }, desc: '七色光芒汇聚的至高宝石 💎', consumable: false },
+  { id: 'ancient_scroll', name: '远古卷轴', icon: '📜', type: 'rare', category: 'rare', price: 750, effect: { happiness: 50 }, desc: '记载着远古智慧的神秘卷轴 🏛️', consumable: false },
+  { id: 'cosmic_dust', name: '宇宙尘埃', icon: '🌌', type: 'rare', category: 'rare', price: 900, effect: { energy: 50, health: 50 }, desc: '来自遥远星系的神秘尘埃，蕴含宇宙之力 💫', consumable: true },
+  { id: 'genesis_seed', name: '创世种子', icon: '🌰', type: 'seed', category: 'rare', price: 500, growTime: 600, harvestValue: 500, harvestIcon: '🌳', harvestName: '世界树果实', harvestId: 'world_tree_fruit', desc: '传说中的创世种子，可长出世界树 🌍 (10分钟)' },
+
   // --- 鱼饵 (5) ---
   { id: 'basic_bait', name: '普通鱼饵', icon: '🪱', type: 'bait', category: 'bait', price: 3, fishBonus: 0, desc: '基础鱼饵，聊胜于无' },
   { id: 'good_bait', name: '高级鱼饵', icon: '🐛', type: 'bait', category: 'bait', price: 8, fishBonus: 1, desc: '更好的鱼饵，更好的收获' },
@@ -597,14 +614,36 @@ function getBarClass(value) {
 
 function renderStatus() {
   const stats = ['hunger', 'happiness', 'energy', 'cleanliness', 'health'];
+  const statEmojis = {
+    hunger: { high: '😋', mid: '😐', low: '😰', crit: '💀' },
+    happiness: { high: '😄', mid: '😐', low: '😰', crit: '💀' },
+    energy: { high: '⚡', mid: '😐', low: '😰', crit: '💀' },
+    cleanliness: { high: '✨', mid: '😐', low: '😰', crit: '💀' },
+    health: { high: '💗', mid: '😐', low: '😰', crit: '💀' },
+  };
+
   for (const stat of stats) {
     const val = Math.round(gameState.stats[stat]);
     const valEl = document.getElementById(stat + '-val');
     const barEl = document.getElementById(stat + '-bar');
-    if (valEl) valEl.textContent = val;
+
+    const emoji = val > 60 ? statEmojis[stat].high : val > 30 ? statEmojis[stat].mid : val < 10 ? statEmojis[stat].crit : statEmojis[stat].low;
+
+    if (valEl) valEl.textContent = `${emoji} ${val}/100`;
     if (barEl) {
       barEl.style.width = val + '%';
-      barEl.className = 'stat-bar-fill ' + getBarClass(val);
+      const cls = getBarClass(val);
+      barEl.className = 'stat-bar-fill ' + cls;
+      // Apply gradient colors based on value
+      if (val >= 60) {
+        barEl.style.background = 'linear-gradient(90deg, #51cf66, #40c057)';
+      } else if (val >= 30) {
+        barEl.style.background = 'linear-gradient(90deg, #fcc419, #fab005)';
+      } else if (val >= 15) {
+        barEl.style.background = 'linear-gradient(90deg, #ff922b, #fd7e14)';
+      } else {
+        barEl.style.background = 'linear-gradient(90deg, #ff6b6b, #fa5252)';
+      }
     }
   }
 }
@@ -768,42 +807,104 @@ function renderInventory() {
   const items = gameState.inventory.filter((i) => i.quantity > 0);
   if (items.length === 0) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:20px;">背包空空如也...快去商店买些东西吧！</div>';
+    selectedInventoryItem = null;
     return;
   }
 
   for (const invItem of items) {
     const def = findItemDef(invItem.itemId);
-    // 也可能是收获的作物或钓到的鱼(无定义)
     const icon = def ? def.icon : '📦';
     const name = def ? def.name : invItem.itemId;
-    const type = def ? def.type : '其他';
-    const desc = def ? def.desc : '';
+    const isSelected = selectedInventoryItem === invItem.itemId;
 
-    const slot = document.createElement('div');
-    slot.className = 'inv-slot';
-    slot.innerHTML = `
-      <div class="tooltip">
-        <div>${icon} ${name}</div>
-        <div class="tooltip-type">${getTypeName(type)}</div>
-        ${def && def.effect ? '<div class="tooltip-effect">' + formatEffect(def.effect) + '</div>' : ''}
-        ${desc ? '<div class="tooltip-effect">' + desc + '</div>' : ''}
-      </div>
-      <span class="item-icon">${icon}</span>
-      <span class="item-name">${name}</span>
-      <span class="item-qty">x${invItem.quantity}</span>
+    const card = document.createElement('div');
+    card.className = 'inv-card' + (isSelected ? ' selected' : '');
+    card.innerHTML = `
+      <div class="inv-card-icon">${icon}</div>
+      <div class="inv-card-qty">x${invItem.quantity}</div>
+      <div class="inv-card-name">${name}</div>
     `;
 
-    slot.addEventListener('click', () => handleUseItem(def, invItem));
-    grid.appendChild(slot);
+    card.addEventListener('click', () => selectInventoryItem(invItem.itemId));
+    grid.appendChild(card);
   }
 
-  // 填充空槽
+  // Fill empty slots
   const totalSlots = Math.max(16, items.length + (4 - (items.length % 4)));
   for (let i = items.length; i < totalSlots; i++) {
     const slot = document.createElement('div');
-    slot.className = 'inv-slot empty';
-    slot.innerHTML = '<span class="item-icon" style="opacity:0.2">-</span>';
+    slot.className = 'inv-card empty';
+    slot.innerHTML = '<div class="inv-card-icon" style="opacity:0.15">-</div>';
     grid.appendChild(slot);
+  }
+
+  // Detail panel for selected item
+  if (selectedInventoryItem) {
+    const invItem = items.find(i => i.itemId === selectedInventoryItem);
+    if (invItem) {
+      const def = findItemDef(invItem.itemId);
+      const icon = def ? def.icon : '📦';
+      const name = def ? def.name : invItem.itemId;
+      const type = def ? def.type : '其他';
+      const desc = def ? def.desc : '';
+      const effectStr = def && def.effect ? formatEffect(def.effect) : '';
+
+      const detailPanel = document.createElement('div');
+      detailPanel.className = 'inv-detail-panel';
+      detailPanel.innerHTML = `
+        <div class="inv-detail-header">
+          <span class="inv-detail-icon">${icon}</span>
+          <div class="inv-detail-info">
+            <div class="inv-detail-name">${name}</div>
+            <div class="inv-detail-type">${getTypeName(type)} | 数量: ${invItem.quantity}</div>
+          </div>
+        </div>
+        ${desc ? '<div class="inv-detail-desc">' + desc + '</div>' : ''}
+        ${effectStr ? '<div class="inv-detail-effect">' + effectStr + '</div>' : ''}
+        <div class="inv-detail-actions">
+          <button class="inv-action-btn use-btn" id="inv-use-btn">使用</button>
+          <button class="inv-action-btn sell-btn" id="inv-sell-btn">出售</button>
+          <button class="inv-action-btn discard-btn" id="inv-discard-btn">丢弃</button>
+        </div>
+      `;
+      grid.appendChild(detailPanel);
+
+      // Bind detail actions
+      const useBtn = detailPanel.querySelector('#inv-use-btn');
+      const sellBtn = detailPanel.querySelector('#inv-sell-btn');
+      const discardBtn = detailPanel.querySelector('#inv-discard-btn');
+
+      useBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (def) handleUseItem(def, invItem);
+        selectedInventoryItem = null;
+        renderInventory();
+      });
+
+      sellBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (def && invItem.quantity > 0) {
+          const sellPrice = Math.max(1, Math.floor((def.price || 5) / 2));
+          removeFromInventory(invItem.itemId, 1);
+          addCoins(sellPrice);
+          showToast(`卖出了 ${icon} ${name}，获得 ${sellPrice} 金币！`, 'success');
+          selectedInventoryItem = null;
+          renderInventory();
+          saveGame();
+        }
+      });
+
+      discardBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (invItem.quantity > 0) {
+          removeFromInventory(invItem.itemId, 1);
+          showToast(`丢弃了 ${icon} ${name}！`, 'info');
+          selectedInventoryItem = null;
+          renderInventory();
+          saveGame();
+        }
+      });
+    }
   }
 }
 
@@ -900,6 +1001,7 @@ function renderShop() {
     { key: 'decoration', label: '👑 装饰' },
     { key: 'bait', label: '🎣 鱼饵' },
     { key: 'ingredient', label: '🍳 食材' },
+    { key: 'rare', label: '💎 稀有' },
   ];
 
   catContainer.innerHTML = '';
@@ -918,24 +1020,48 @@ function renderShop() {
   const items = SHOP_ITEMS.filter((i) => i.category === shopCategory);
   gridContainer.innerHTML = '';
 
+  const effectEmojis = { hunger: '🍔', happiness: '😊', energy: '⚡', cleanliness: '🫧', health: '💗' };
+  const effectNames = { hunger: '饱食度', happiness: '心情', energy: '精力', cleanliness: '清洁度', health: '健康' };
+
   for (const item of items) {
     const canAfford = gameState.coins >= item.price;
     const owned = getInventoryQty(item.id);
     const card = document.createElement('div');
-    card.className = 'shop-item' + (canAfford ? '' : ' cant-afford');
+    card.className = 'shop-card' + (canAfford ? '' : ' cant-afford');
+
+    let effectHtml = '';
+    if (item.effect) {
+      const parts = [];
+      for (const [key, val] of Object.entries(item.effect)) {
+        const sign = val > 0 ? '+' : '';
+        const emoji = effectEmojis[key] || '';
+        const label = effectNames[key] || key;
+        parts.push(`${sign}${val} ${label} ${emoji}`);
+      }
+      effectHtml = parts.join(' | ');
+    } else if (item.type === 'seed') {
+      effectHtml = `收获价值 🪙${item.harvestValue} | ${item.harvestIcon} ${item.harvestName}`;
+    } else {
+      effectHtml = item.desc;
+    }
+
     card.innerHTML = `
-      <span class="item-icon">${item.icon}</span>
-      <span class="item-name">${item.name}</span>
-      <span class="item-desc">${item.desc}</span>
-      ${owned > 0 ? '<span class="item-owned">已拥有: ' + owned + '</span>' : ''}
-      <span class="item-price">🪙 ${item.price}</span>
-      <button class="buy-btn" ${canAfford ? '' : 'disabled'}>购买</button>
+      <div class="shop-card-icon">${item.icon}</div>
+      <div class="shop-card-name">${item.name}</div>
+      <div class="shop-card-desc">${item.desc} ✨</div>
+      <div class="shop-card-effect">${effectHtml}</div>
+      <div class="shop-card-footer">
+        <span class="shop-card-price">🪙 ${item.price}</span>
+        <button class="shop-buy-btn" ${canAfford ? '' : 'disabled'}>购买</button>
+      </div>
+      ${owned > 0 ? '<span class="shop-card-owned">已拥有: ' + owned + '</span>' : ''}
     `;
 
-    const buyBtn = card.querySelector('.buy-btn');
+    card.addEventListener('click', () => buyShopItem(item.id));
+    const buyBtn = card.querySelector('.shop-buy-btn');
     buyBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      buyItem(item);
+      buyShopItem(item.id);
     });
     gridContainer.appendChild(card);
   }
@@ -956,6 +1082,35 @@ function buyItem(item) {
   renderInventory();
   updateQuestProgress();
   checkAchievements();
+}
+
+function buyShopItem(itemId) {
+  const item = findItemDef(itemId);
+  if (!item) return;
+  if (gameState.coins < item.price) {
+    showToast('金币不足！😢', 'error');
+    return;
+  }
+  gameState.coins -= item.price;
+  addToInventory(itemId, 1);
+  gameState.trackers.itemsBought++;
+  gameState.trackers.totalSpent += item.price;
+  showToast(`购买了 ${item.icon} ${item.name}！`, 'success');
+  addXp(2);
+  triggerPetAnimation('game-shop');
+  updateQuestProgress();
+  checkAchievements();
+  renderShop();
+  renderInventory();
+  renderTopBar();
+  saveGame();
+}
+
+let selectedInventoryItem = null;
+
+function selectInventoryItem(itemId) {
+  selectedInventoryItem = (selectedInventoryItem === itemId) ? null : itemId;
+  renderInventory();
 }
 
 // ============================================================
@@ -2747,7 +2902,7 @@ function getTypeName(type) {
   const names = {
     food: '食物', toy: '玩具', seed: '种子', tool: '工具',
     decoration: '装饰', bait: '鱼饵', ingredient: '食材',
-    fish: '鱼类',
+    fish: '鱼类', rare: '稀有',
   };
   return names[type] || type;
 }
@@ -2860,6 +3015,257 @@ const NPC_OPPONENTS = [
     reward: { coins: 500, xp: 300 },
     stealChance: 0.03,
   },
+  // --- 20+ additional opponents ---
+  {
+    id: 'poison_mushroom', name: '毒蘑菇', icon: '🍄', level: 2,
+    hp: 55, attack: 7, defense: 4, speed: 3,
+    skills: [
+      { id: 'spore_burst', name: '孢子爆破', icon: '🍄', damage: 12, type: 'poison', desc: '释放毒孢子' },
+      { id: 'toxic_cloud', name: '毒雾', icon: '☠️', damage: 8, type: 'poison', desc: '弥漫的毒气', hits: 2 },
+      { id: 'regen_cap', name: '再生菌盖', icon: '🌿', damage: 0, type: 'heal', desc: '恢复20%HP', healPercent: 20 },
+    ],
+    reward: { coins: 12, xp: 8 },
+    stealChance: 0.28,
+  },
+  {
+    id: 'rock_spirit', name: '石头精灵', icon: '🪨', level: 4,
+    hp: 100, attack: 10, defense: 12, speed: 3,
+    skills: [
+      { id: 'rock_throw', name: '投石', icon: '🪨', damage: 16, type: 'earth', desc: '扔出巨石' },
+      { id: 'earthquake', name: '地震波', icon: '🌍', damage: 22, type: 'earth', desc: '大地的震动', maxCooldown: 2 },
+      { id: 'stone_skin', name: '石化皮肤', icon: '🛡️', damage: 0, type: 'buff', desc: '防御大幅提升', buff: { defense: 10 } },
+    ],
+    reward: { coins: 20, xp: 15 },
+    stealChance: 0.22,
+  },
+  {
+    id: 'ocean_jellyfish', name: '海洋水母', icon: '🪼', level: 6,
+    hp: 75, attack: 15, defense: 5, speed: 7,
+    skills: [
+      { id: 'tentacle_shock', name: '触手电击', icon: '⚡', damage: 20, type: 'electric', desc: '带电的触手攻击' },
+      { id: 'water_pulse', name: '水之脉动', icon: '🌊', damage: 16, type: 'water', desc: '海水冲击' },
+      { id: 'paralyze_sting', name: '麻痹之刺', icon: '💉', damage: 14, type: 'electric', desc: '使对手麻痹的毒刺' },
+      { id: 'deep_sea_heal', name: '深海回复', icon: '💧', damage: 0, type: 'heal', desc: '恢复25%HP', healPercent: 25 },
+    ],
+    reward: { coins: 35, xp: 25 },
+    stealChance: 0.18,
+  },
+  {
+    id: 'flower_fairy', name: '花仙子', icon: '🧚', level: 7,
+    hp: 85, attack: 11, defense: 6, speed: 11,
+    skills: [
+      { id: 'petal_dance', name: '花瓣飞舞', icon: '🌸', damage: 18, type: 'nature', desc: '漫天花瓣攻击' },
+      { id: 'vine_whip', name: '藤鞭', icon: '🌿', damage: 15, type: 'nature', desc: '藤蔓抽打' },
+      { id: 'fairy_heal', name: '仙子祝福', icon: '✨', damage: 0, type: 'heal', desc: '恢复30%HP', healPercent: 30 },
+      { id: 'pollen_sleep', name: '催眠花粉', icon: '💤', damage: 10, type: 'nature', desc: '催眠花粉攻击' },
+    ],
+    reward: { coins: 45, xp: 32 },
+    stealChance: 0.16,
+  },
+  {
+    id: 'iron_knight', name: '钢铁骑士', icon: '🤖', level: 9,
+    hp: 140, attack: 16, defense: 18, speed: 5,
+    skills: [
+      { id: 'steel_slash', name: '钢铁斩', icon: '⚔️', damage: 22, type: 'metal', desc: '钢剑劈砍' },
+      { id: 'shield_bash', name: '盾击', icon: '🛡️', damage: 18, type: 'metal', desc: '用盾牌猛击' },
+      { id: 'iron_fortress', name: '铁壁', icon: '🏰', damage: 0, type: 'buff', desc: '防御力大幅提升', buff: { defense: 12 } },
+      { id: 'holy_strike', name: '圣光斩', icon: '✨', damage: 30, type: 'holy', desc: '注入圣光的一击', maxCooldown: 2 },
+    ],
+    reward: { coins: 55, xp: 40 },
+    stealChance: 0.13,
+  },
+  {
+    id: 'desert_scorpion', name: '沙漠蝎王', icon: '🦂', level: 11,
+    hp: 130, attack: 22, defense: 14, speed: 9,
+    skills: [
+      { id: 'scorpion_sting', name: '毒尾刺', icon: '🦂', damage: 28, type: 'poison', desc: '剧毒的尾刺攻击' },
+      { id: 'sand_storm', name: '沙尘暴', icon: '🏜️', damage: 22, type: 'earth', desc: '卷起沙尘暴' },
+      { id: 'burrow_strike', name: '潜地突袭', icon: '🕳️', damage: 32, type: 'earth', desc: '从地下突然袭击', maxCooldown: 2 },
+      { id: 'venom_boost', name: '毒液强化', icon: '☠️', damage: 0, type: 'buff', desc: '攻击力提升', buff: { attack: 8 } },
+    ],
+    reward: { coins: 70, xp: 52 },
+    stealChance: 0.11,
+  },
+  {
+    id: 'ghost_mage', name: '幽灵法师', icon: '👻', level: 12,
+    hp: 95, attack: 24, defense: 8, speed: 13,
+    skills: [
+      { id: 'soul_bolt', name: '灵魂弹', icon: '👻', damage: 26, type: 'dark', desc: '灵魂能量射击' },
+      { id: 'phantom_curse', name: '幽灵诅咒', icon: '🌑', damage: 20, type: 'dark', desc: '降低对手防御', hits: 2 },
+      { id: 'spirit_drain', name: '灵魂吸取', icon: '💜', damage: 18, type: 'dark', desc: '吸取生命值', healPercent: 15, type: 'heal' },
+      { id: 'ghost_vanish', name: '幽灵消隐', icon: '💨', damage: 0, type: 'buff', desc: '提升速度和闪避', buff: { speed: 8 } },
+    ],
+    reward: { coins: 75, xp: 55 },
+    stealChance: 0.10,
+  },
+  {
+    id: 'lava_behemoth', name: '熔岩巨兽', icon: '🌋', level: 14,
+    hp: 200, attack: 26, defense: 16, speed: 4,
+    skills: [
+      { id: 'lava_slam', name: '熔岩重击', icon: '🌋', damage: 30, type: 'fire', desc: '熔岩巨拳砸地' },
+      { id: 'eruption', name: '火山喷发', icon: '🔥', damage: 42, type: 'fire', desc: '猛烈喷发', maxCooldown: 3 },
+      { id: 'magma_armor', name: '岩浆护甲', icon: '🛡️', damage: 0, type: 'buff', desc: '防御和攻击提升', buff: { defense: 8, attack: 5 } },
+      { id: 'molten_wave', name: '熔流冲击', icon: '🌊', damage: 35, type: 'fire', desc: '熔岩波浪席卷', maxCooldown: 2 },
+    ],
+    reward: { coins: 100, xp: 75 },
+    stealChance: 0.09,
+  },
+  {
+    id: 'aurora_spirit', name: '极光精灵', icon: '🌌', level: 16,
+    hp: 120, attack: 28, defense: 10, speed: 16,
+    skills: [
+      { id: 'aurora_beam', name: '极光射线', icon: '🌈', damage: 32, type: 'light', desc: '七彩极光攻击' },
+      { id: 'prismatic_flash', name: '棱光闪耀', icon: '💎', damage: 28, type: 'light', desc: '耀眼光芒攻击' },
+      { id: 'starlight_barrier', name: '星光屏障', icon: '✨', damage: 0, type: 'buff', desc: '防御和速度提升', buff: { defense: 6, speed: 6 } },
+      { id: 'northern_lights', name: '北极光爆发', icon: '🌌', damage: 48, type: 'light', desc: '极光汇聚的终极一击', maxCooldown: 3 },
+    ],
+    reward: { coins: 130, xp: 95 },
+    stealChance: 0.08,
+  },
+  {
+    id: 'time_hunter', name: '时间猎手', icon: '⏳', level: 18,
+    hp: 150, attack: 27, defense: 12, speed: 18,
+    skills: [
+      { id: 'time_slash', name: '时间斩', icon: '⏳', damage: 30, type: 'time', desc: '切割时间线的一刀' },
+      { id: 'temporal_rewind', name: '时光倒流', icon: '⏪', damage: 0, type: 'heal', desc: '恢复35%HP', healPercent: 35 },
+      { id: 'haste', name: '时间加速', icon: '⏩', damage: 0, type: 'buff', desc: '速度大幅提升', buff: { speed: 10 } },
+      { id: 'chrono_strike', name: '时空乱流', icon: '🕐', damage: 52, type: 'time', desc: '扭曲时空的猛击', maxCooldown: 3 },
+    ],
+    reward: { coins: 160, xp: 120 },
+    stealChance: 0.07,
+  },
+  {
+    id: 'nature_titan', name: '自然泰坦', icon: '🌳', level: 19,
+    hp: 220, attack: 22, defense: 20, speed: 6,
+    skills: [
+      { id: 'root_slam', name: '根须猛击', icon: '🌿', damage: 28, type: 'nature', desc: '巨大树根攻击' },
+      { id: 'natures_wrath', name: '自然之怒', icon: '🌳', damage: 40, type: 'nature', desc: '大自然的愤怒', maxCooldown: 2 },
+      { id: 'photosynthesis', name: '光合作用', icon: '☀️', damage: 0, type: 'heal', desc: '恢复25%HP', healPercent: 25 },
+      { id: 'thorn_fortress', name: '荆棘堡垒', icon: '🌹', damage: 0, type: 'buff', desc: '防御大幅提升', buff: { defense: 14 } },
+    ],
+    reward: { coins: 170, xp: 125 },
+    stealChance: 0.07,
+  },
+  {
+    id: 'chaos_dragon', name: '混沌魔龙', icon: '🐲', level: 22,
+    hp: 250, attack: 32, defense: 18, speed: 11,
+    skills: [
+      { id: 'chaos_breath', name: '混沌吐息', icon: '🌀', damage: 38, type: 'chaos', desc: '混沌能量吐息' },
+      { id: 'void_claw', name: '虚无之爪', icon: '🐲', damage: 34, type: 'dark', desc: '撕裂虚空的龙爪' },
+      { id: 'chaos_shield', name: '混沌护甲', icon: '🔮', damage: 0, type: 'buff', desc: '全属性提升', buff: { attack: 5, defense: 8, speed: 3 } },
+      { id: 'oblivion_blast', name: '遗忘爆破', icon: '💥', damage: 58, type: 'chaos', desc: '毁灭一切的混沌能量', maxCooldown: 4 },
+    ],
+    reward: { coins: 250, xp: 180 },
+    stealChance: 0.06,
+  },
+  {
+    id: 'frost_empress', name: '冰霜女皇', icon: '👸', level: 24,
+    hp: 190, attack: 30, defense: 15, speed: 14,
+    skills: [
+      { id: 'blizzard', name: '暴风雪', icon: '❄️', damage: 35, type: 'ice', desc: '席卷一切的暴风雪' },
+      { id: 'ice_prison', name: '冰牢', icon: '🧊', damage: 28, type: 'ice', desc: '冰之牢笼' },
+      { id: 'frost_nova', name: '冰霜新星', icon: '💠', damage: 48, type: 'ice', desc: '冰霜能量大爆发', maxCooldown: 3 },
+      { id: 'frozen_heart', name: '冰封之心', icon: '💙', damage: 0, type: 'heal', desc: '恢复30%HP', healPercent: 30 },
+    ],
+    reward: { coins: 280, xp: 200 },
+    stealChance: 0.06,
+  },
+  {
+    id: 'star_guardian', name: '星辰守护者', icon: '⭐', level: 25,
+    hp: 230, attack: 33, defense: 20, speed: 13,
+    skills: [
+      { id: 'star_rain', name: '星雨', icon: '🌠', damage: 36, type: 'cosmic', desc: '流星群落下' },
+      { id: 'constellation_shield', name: '星座护盾', icon: '🛡️', damage: 0, type: 'buff', desc: '星辰守护之力', buff: { defense: 12, speed: 4 } },
+      { id: 'galaxy_burst', name: '银河爆发', icon: '🌌', damage: 55, type: 'cosmic', desc: '银河能量集中爆发', maxCooldown: 3 },
+      { id: 'stellar_heal', name: '星光治愈', icon: '✨', damage: 0, type: 'heal', desc: '恢复35%HP', healPercent: 35 },
+    ],
+    reward: { coins: 300, xp: 220 },
+    stealChance: 0.05,
+  },
+  {
+    id: 'abyss_lord', name: '深渊领主', icon: '😈', level: 28,
+    hp: 280, attack: 36, defense: 22, speed: 10,
+    skills: [
+      { id: 'abyss_gaze', name: '深渊凝视', icon: '👁️', damage: 38, type: 'dark', desc: '来自深渊的注视' },
+      { id: 'dark_eruption', name: '暗黑喷发', icon: '🌑', damage: 48, type: 'dark', desc: '深渊能量喷涌', maxCooldown: 2 },
+      { id: 'soul_harvest', name: '灵魂收割', icon: '💀', damage: 42, type: 'dark', desc: '收割灵魂', healPercent: 20, type: 'heal' },
+      { id: 'abyssal_wrath', name: '深渊之怒', icon: '😈', damage: 65, type: 'dark', desc: '深渊领主的终极怒火', maxCooldown: 4 },
+    ],
+    reward: { coins: 400, xp: 280 },
+    stealChance: 0.04,
+  },
+  {
+    id: 'celestial_general', name: '天界神将', icon: '⚔️', level: 32,
+    hp: 320, attack: 38, defense: 25, speed: 14,
+    skills: [
+      { id: 'divine_slash', name: '神圣斩击', icon: '⚔️', damage: 42, type: 'holy', desc: '注入神力的一斩' },
+      { id: 'heavenly_judgment', name: '天罚', icon: '⚡', damage: 55, type: 'holy', desc: '来自天界的审判', maxCooldown: 3 },
+      { id: 'divine_protection', name: '神圣守护', icon: '🛡️', damage: 0, type: 'buff', desc: '全属性提升', buff: { attack: 8, defense: 10, speed: 5 } },
+      { id: 'celestial_fury', name: '天界之怒', icon: '✨', damage: 72, type: 'holy', desc: '天界最强一击', maxCooldown: 5 },
+    ],
+    reward: { coins: 600, xp: 400 },
+    stealChance: 0.03,
+  },
+  {
+    id: 'creator_god', name: '创世之神', icon: '🌟', level: 35,
+    hp: 380, attack: 40, defense: 28, speed: 15,
+    skills: [
+      { id: 'genesis_beam', name: '创世光束', icon: '🌟', damage: 45, type: 'cosmic', desc: '创造万物的光芒' },
+      { id: 'divine_creation', name: '神圣创造', icon: '✨', damage: 0, type: 'heal', desc: '恢复40%HP', healPercent: 40 },
+      { id: 'universal_law', name: '万物法则', icon: '📜', damage: 0, type: 'buff', desc: '全属性大幅提升', buff: { attack: 10, defense: 12, speed: 8 } },
+      { id: 'big_bang', name: '创世爆炸', icon: '💥', damage: 80, type: 'cosmic', desc: '宇宙大爆炸之力', maxCooldown: 5 },
+    ],
+    reward: { coins: 800, xp: 500 },
+    stealChance: 0.02,
+  },
+  {
+    id: 'storm_emperor', name: '风暴帝王', icon: '🌪️', level: 26,
+    hp: 210, attack: 34, defense: 14, speed: 20,
+    skills: [
+      { id: 'typhoon', name: '台风', icon: '🌪️', damage: 36, type: 'wind', desc: '猛烈的台风攻击' },
+      { id: 'lightning_storm', name: '雷暴', icon: '⚡', damage: 42, type: 'electric', desc: '雷暴交加', maxCooldown: 2 },
+      { id: 'storm_surge', name: '风暴涌动', icon: '🌊', damage: 0, type: 'buff', desc: '速度和攻击提升', buff: { speed: 8, attack: 6 } },
+      { id: 'annihilating_tempest', name: '灭世风暴', icon: '🌀', damage: 60, type: 'wind', desc: '毁灭一切的终极风暴', maxCooldown: 4 },
+    ],
+    reward: { coins: 320, xp: 240 },
+    stealChance: 0.05,
+  },
+  {
+    id: 'blood_vampire', name: '血族亲王', icon: '🧛', level: 17,
+    hp: 160, attack: 25, defense: 10, speed: 14,
+    skills: [
+      { id: 'blood_drain', name: '吸血', icon: '🩸', damage: 22, type: 'dark', desc: '吸取鲜血回复HP' },
+      { id: 'bat_swarm', name: '蝙蝠群', icon: '🦇', damage: 18, type: 'dark', desc: '召唤蝙蝠群攻击', hits: 3 },
+      { id: 'crimson_feast', name: '血色盛宴', icon: '🩸', damage: 0, type: 'heal', desc: '恢复30%HP', healPercent: 30 },
+      { id: 'night_terror', name: '夜之恐惧', icon: '🌑', damage: 38, type: 'dark', desc: '暗夜的恐怖力量', maxCooldown: 2 },
+    ],
+    reward: { coins: 140, xp: 105 },
+    stealChance: 0.08,
+  },
+  {
+    id: 'cosmos_devourer', name: '宇宙吞噬者', icon: '🕳️', level: 40,
+    hp: 450, attack: 42, defense: 30, speed: 12,
+    skills: [
+      { id: 'devour_star', name: '吞星', icon: '🌑', damage: 50, type: 'cosmic', desc: '吞噬星球的力量' },
+      { id: 'gravity_crush', name: '重力碾压', icon: '🕳️', damage: 45, type: 'cosmic', desc: '黑洞般的重力' },
+      { id: 'cosmic_absorption', name: '宇宙吸收', icon: '🌌', damage: 0, type: 'heal', desc: '恢复35%HP', healPercent: 35 },
+      { id: 'supernova', name: '超新星爆发', icon: '💥', damage: 90, type: 'cosmic', desc: '恒星毁灭级爆炸', maxCooldown: 5 },
+    ],
+    reward: { coins: 1200, xp: 800 },
+    stealChance: 0.02,
+  },
+  {
+    id: 'lord_of_eternity', name: '永恒之主', icon: '♾️', level: 50,
+    hp: 600, attack: 50, defense: 35, speed: 20,
+    skills: [
+      { id: 'eternal_flame', name: '永恒之焰', icon: '🔥', damage: 55, type: 'cosmic', desc: '永不熄灭的火焰' },
+      { id: 'time_stop', name: '时间停止', icon: '⏳', damage: 0, type: 'buff', desc: '全属性极大提升', buff: { attack: 15, defense: 15, speed: 12 } },
+      { id: 'infinity_heal', name: '无限回复', icon: '♾️', damage: 0, type: 'heal', desc: '恢复50%HP', healPercent: 50 },
+      { id: 'end_of_all', name: '终焉', icon: '💀', damage: 120, type: 'cosmic', desc: '终结一切的绝对力量', maxCooldown: 6 },
+    ],
+    reward: { coins: 2000, xp: 1500 },
+    stealChance: 0.01,
+  },
 ];
 
 const LEARNABLE_SKILLS_BY_LEVEL = [
@@ -2873,6 +3279,16 @@ const LEARNABLE_SKILLS_BY_LEVEL = [
   { level: 20, skill: { id: 'mega_strike', name: '超级打击', icon: '⭐', damage: 45, type: 'normal', cooldown: 0, maxCooldown: 3, desc: '超强力打击' } },
   { level: 25, skill: { id: 'dragon_breath', name: '龙息术', icon: '🐲', damage: 50, type: 'fire', cooldown: 0, maxCooldown: 4, desc: '龙之吐息' } },
   { level: 30, skill: { id: 'ultimate_blast', name: '终极爆破', icon: '💥', damage: 60, type: 'normal', cooldown: 0, maxCooldown: 5, desc: '最强大的攻击技能' } },
+  { level: 35, skill: { id: 'holy_judgment', name: '圣光审判', icon: '✨', damage: 65, type: 'holy', cooldown: 0, maxCooldown: 4, desc: '神圣光芒的审判' } },
+  { level: 38, skill: { id: 'chaos_nova', name: '混沌新星', icon: '🌀', damage: 58, type: 'chaos', cooldown: 0, maxCooldown: 3, desc: '混沌能量大爆发' } },
+  { level: 40, skill: { id: 'cosmic_ray', name: '宇宙射线', icon: '🌌', damage: 72, type: 'cosmic', cooldown: 0, maxCooldown: 4, desc: '来自宇宙深处的毁灭射线' } },
+  { level: 42, skill: { id: 'phoenix_rebirth', name: '浴火重生', icon: '🔥', damage: 0, type: 'heal', cooldown: 0, maxCooldown: 5, desc: '恢复40%HP', healPercent: 40 } },
+  { level: 45, skill: { id: 'time_warp', name: '时空扭曲', icon: '⏳', damage: 68, type: 'time', cooldown: 0, maxCooldown: 4, desc: '扭曲时空的致命一击' } },
+  { level: 48, skill: { id: 'soul_reaper', name: '灵魂收割者', icon: '💀', damage: 78, type: 'dark', cooldown: 0, maxCooldown: 5, desc: '收割一切灵魂' } },
+  { level: 50, skill: { id: 'divine_wrath', name: '神之怒', icon: '⚡', damage: 85, type: 'holy', cooldown: 0, maxCooldown: 5, desc: '神明的愤怒降临' } },
+  { level: 55, skill: { id: 'big_bang_strike', name: '创世一击', icon: '💥', damage: 95, type: 'cosmic', cooldown: 0, maxCooldown: 6, desc: '宇宙大爆炸级别的攻击' } },
+  { level: 60, skill: { id: 'eternal_oblivion', name: '永恒湮灭', icon: '♾️', damage: 110, type: 'cosmic', cooldown: 0, maxCooldown: 6, desc: '终结一切的永恒力量' } },
+  { level: 70, skill: { id: 'omnipotence', name: '全知全能', icon: '🌟', damage: 0, type: 'buff', cooldown: 0, maxCooldown: 6, desc: '全属性极大提升', buff: { attack: 20, defense: 20, speed: 15 } } },
 ];
 
 // Battle state (not persisted, per-session)
