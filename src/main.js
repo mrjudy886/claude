@@ -8,6 +8,7 @@ let tray = null;
 
 const PET_SIZE = 120;
 const SAVE_FILE = path.join(app.getPath("userData"), "clawd-save.json");
+const PANEL_SAVE_FILE = path.join(app.getPath("userData"), "clawd-panel-state.json");
 const SAVE_INTERVAL = 30000;
 
 // ─── Default Game State ───
@@ -277,6 +278,29 @@ ipcMain.handle("get-game-state", () => {
 ipcMain.on("save-game-state", (_, state) => {
   Object.assign(gameState, state);
   saveGameState();
+});
+
+ipcMain.handle("load-panel-state", () => {
+  try {
+    if (fs.existsSync(PANEL_SAVE_FILE)) {
+      return JSON.parse(fs.readFileSync(PANEL_SAVE_FILE, "utf-8"));
+    }
+  } catch (e) {
+    console.error("Failed to load panel state:", e.message);
+  }
+  return null;
+});
+
+ipcMain.handle("save-panel-state", (_, state) => {
+  try {
+    state.lastSaved = Date.now();
+    fs.writeFileSync(PANEL_SAVE_FILE, JSON.stringify(state), "utf-8");
+    Object.assign(gameState, { level: state.level, xp: state.xp, coins: state.coins, stats: state.stats });
+    return { ok: true };
+  } catch (e) {
+    console.error("Failed to save panel state:", e.message);
+    return { ok: false, error: e.message };
+  }
 });
 
 ipcMain.handle("earn-coins", (_, amount) => {

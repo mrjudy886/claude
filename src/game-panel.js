@@ -409,11 +409,16 @@ async function init() {
   bindTitleBar();
 
   try {
-    if (window.electronAPI && window.electronAPI.getGameState) {
-      const saved = await window.electronAPI.getGameState();
-      if (saved && saved.stats) {
-        gameState = mergeState(saved);
-      }
+    let saved = null;
+    if (window.electronAPI && window.electronAPI.loadPanelState) {
+      saved = await window.electronAPI.loadPanelState();
+    }
+    if (!saved && window.electronAPI && window.electronAPI.getGameState) {
+      saved = await window.electronAPI.getGameState();
+    }
+    if (saved && saved.stats) {
+      gameState = mergeState(saved);
+      console.log('存档加载成功: Lv.' + gameState.level + ' XP:' + gameState.xp + ' 金币:' + gameState.coins);
     }
   } catch (e) {
     console.error('无法加载存档，使用默认状态', e);
@@ -449,18 +454,8 @@ async function init() {
     gameState.trackers.minutesPlayed++;
   }, 60000);
 
-  if (window.electronAPI && window.electronAPI.onGameStateUpdate) {
-    window.electronAPI.onGameStateUpdate((data) => {
-      if (data && data.stats) {
-        try {
-          gameState = mergeState(data);
-          renderAll();
-        } catch (e) {
-          console.error('state update error:', e);
-        }
-      }
-    });
-  }
+  // NOTE: onGameStateUpdate removed - it was causing state overwrites
+  // game-panel now manages its own state independently via save-panel-state
 }
 
 function mergeState(saved) {
@@ -515,15 +510,24 @@ function catchUpTime() {
 // ============================================================
 // 存档
 // ============================================================
+let saveQueued = false;
 async function saveGame() {
-  gameState.lastUpdate = Date.now();
-  try {
-    if (window.electronAPI && window.electronAPI.saveGameState) {
-      window.electronAPI.saveGameState(gameState);
+  if (saveQueued) return;
+  saveQueued = true;
+  setTimeout(async () => {
+    saveQueued = false;
+    gameState.lastUpdate = Date.now();
+    try {
+      if (window.electronAPI && window.electronAPI.savePanelState) {
+        const result = await window.electronAPI.savePanelState(gameState);
+        if (!result || !result.ok) {
+          console.error('存档失败:', result);
+        }
+      }
+    } catch (e) {
+      console.error('存档失败', e);
     }
-  } catch (e) {
-    console.error('存档失败', e);
-  }
+  }, 100);
 }
 
 // ============================================================
@@ -644,6 +648,7 @@ function addCoins(amount) {
   gameState.trackers.totalCoinsEarned += amount;
   renderTopBar();
   checkAchievements();
+  saveGame();
 }
 
 function spendCoins(amount) {
@@ -849,6 +854,7 @@ function handleStatusAction(action) {
   renderInventory();
   updateQuestProgress();
   checkAchievements();
+  saveGame();
 }
 
 function applyEffect(effect) {
@@ -3058,6 +3064,7 @@ function reelInFish(baitBonus) {
   renderFishing();
   updateQuestProgress();
   checkAchievements();
+  saveGame();
 }
 
 // ============================================================
@@ -3755,6 +3762,7 @@ function battleWin() {
   triggerPetAnimation('emotion-excited');
   updateQuestProgress();
   checkAchievements();
+  saveGame();
   renderBattleField();
 }
 
@@ -3765,6 +3773,7 @@ function battleLose() {
   battleState.log.push('💀 战斗失败...下次再努力吧！');
   battleState.phase = 'defeat';
   triggerPetAnimation('emotion-cry');
+  saveGame();
   renderBattleField();
 }
 
