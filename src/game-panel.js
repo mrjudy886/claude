@@ -486,13 +486,14 @@ function catchUpTime() {
   if (elapsed <= 0) return;
 
   const s = gameState.stats;
-  // Offline drain: 3x faster than online so pet needs care on return
-  // But capped so stats never go below 15 from offline drain alone
-  const offlineMultiplier = 3;
-  s.hunger = Math.max(15, s.hunger - (elapsed / 288) * offlineMultiplier);
-  s.happiness = Math.max(15, s.happiness - (elapsed / 360) * offlineMultiplier);
-  s.energy = Math.max(15, s.energy - (elapsed / 432) * offlineMultiplier);
-  s.cleanliness = Math.max(15, s.cleanliness - (elapsed / 576) * offlineMultiplier);
+  // Offline drain: 0.5x of online speed (slower when offline)
+  // hunger base: 100/5400 per sec online → offline 0.5x
+  // Floor at 10 so pet isn't dead on return but still needs care
+  const offMul = 0.5;
+  s.hunger = Math.max(10, s.hunger - (elapsed * 100 / 5400) * offMul);
+  s.happiness = Math.max(10, s.happiness - (elapsed * 100 / 7200) * offMul);
+  s.energy = Math.max(10, s.energy - (elapsed * 100 / 9000) * offMul);
+  s.cleanliness = Math.max(10, s.cleanliness - (elapsed * 100 / 10800) * offMul);
   updateHealth();
 
   // 离线花园生长
@@ -633,15 +634,35 @@ function spendCoins(amount) {
 // ============================================================
 function tickStatus() {
   const s = gameState.stats;
-  // Online drain: gentle rates so the player has time to enjoy
-  // hunger: ~8 hours from 100→0, happiness: ~10h, energy: ~12h, cleanliness: ~16h
-  s.hunger = Math.max(0, s.hunger - 1 / 288);
-  s.happiness = Math.max(0, s.happiness - 1 / 360);
-  s.energy = Math.max(0, s.energy - 1 / 432);
-  s.cleanliness = Math.max(0, s.cleanliness - 1 / 576);
+  // Online drain: aggressive so player must actively care for pet
+  // hunger: ~1.5h (5400s), happiness: ~2h (7200s), energy: ~2.5h (9000s), cleanliness: ~3h (10800s)
+  s.hunger = Math.max(0, s.hunger - 100 / 5400);
+  s.happiness = Math.max(0, s.happiness - 100 / 7200);
+  s.energy = Math.max(0, s.energy - 100 / 9000);
+  s.cleanliness = Math.max(0, s.cleanliness - 100 / 10800);
   updateHealth();
   renderStatus();
   gameState.lastUpdate = Date.now();
+}
+
+function drainOnAction(type) {
+  const s = gameState.stats;
+  const costs = {
+    battle:  { hunger: 5, energy: 8, happiness: -2, cleanliness: 3 },
+    fish:    { hunger: 3, energy: 4, happiness: -1, cleanliness: 2 },
+    cook:    { hunger: -3, energy: 3, happiness: -1, cleanliness: 4 },
+    game:    { hunger: 2, energy: 5, happiness: -3, cleanliness: 1 },
+    garden:  { hunger: 2, energy: 3, happiness: -1, cleanliness: 2 },
+    wheel:   { hunger: 1, energy: 2, happiness: 0, cleanliness: 0 },
+    quest:   { hunger: 1, energy: 2, happiness: -1, cleanliness: 1 },
+  };
+  const cost = costs[type] || { hunger: 1, energy: 1, happiness: 0, cleanliness: 0 };
+  s.hunger = Math.max(0, s.hunger - cost.hunger);
+  s.energy = Math.max(0, s.energy - cost.energy);
+  s.happiness = Math.min(100, Math.max(0, s.happiness - cost.happiness));
+  s.cleanliness = Math.max(0, s.cleanliness - cost.cleanliness);
+  updateHealth();
+  renderStatus();
 }
 
 function updateHealth() {
@@ -1328,6 +1349,7 @@ function plantSeed(index, seedId) {
   };
   gameState.trackers.totalPlanted++;
   gameState.trackers.totalActions++;
+  drainOnAction('garden');
 
   showToast(`种下了 ${seedDef.icon} ${seedDef.harvestName || seedDef.name}！`, 'success');
   triggerPetAnimation('game-plant');
@@ -1347,6 +1369,7 @@ function waterPlot(index) {
   plot.elapsed += plot.growTime * 0.08;
   gameState.trackers.timesWatering++;
   gameState.trackers.totalActions++;
+  drainOnAction('garden');
 
   showToast('浇水成功！植物长得更快了', 'success');
   triggerPetAnimation('game-water');
@@ -1376,6 +1399,7 @@ function fertilizePlot(index) {
   }
 
   gameState.trackers.totalActions++;
+  drainOnAction('garden');
   addXp(2);
   renderGarden();
   renderInventory();
@@ -1396,6 +1420,7 @@ function harvestPlot(index) {
 
   gameState.trackers.totalHarvests++;
   gameState.trackers.totalActions++;
+  drainOnAction('garden');
 
   showToast(`收获了 ${plot.harvestIcon} ${plot.cropName}！+${value} 金币`, 'success');
   triggerPetAnimation('game-harvest');
@@ -1494,6 +1519,7 @@ function startMiniGame(gameId) {
   currentMiniGame = gameId;
   gameState.trackers.gamesPlayed++;
   gameState.trackers.totalActions++;
+  drainOnAction('game');
 
   switch (gameId) {
     case 'click_frenzy': initClickFrenzy(area); break;
@@ -1592,6 +1618,7 @@ function endClickFrenzy(clicks, area) {
     `;
     document.getElementById('cf-retry').addEventListener('click', () => {
       gameState.trackers.gamesPlayed++;
+      drainOnAction('game');
       initClickFrenzy(area);
     });
   }
@@ -1688,6 +1715,7 @@ function endMemoryMatch(moves, area) {
       `;
       document.getElementById('mm-retry').addEventListener('click', () => {
         gameState.trackers.gamesPlayed++;
+        drainOnAction('game');
         initMemoryMatch(area);
       });
     }
@@ -1782,6 +1810,7 @@ function endRPS(playerWins, cpuWins, area) {
     `;
     document.getElementById('rps-retry').addEventListener('click', () => {
       gameState.trackers.gamesPlayed++;
+      drainOnAction('game');
       initRPS(area);
     });
   }
@@ -1873,6 +1902,7 @@ function endCatchGame(catches, area) {
     `;
     document.getElementById('cg-retry').addEventListener('click', () => {
       gameState.trackers.gamesPlayed++;
+      drainOnAction('game');
       initCatchGame(area);
     });
   }
@@ -1957,6 +1987,7 @@ function endNumberGuess(guesses, area) {
       `;
       document.getElementById('ng-retry').addEventListener('click', () => {
         gameState.trackers.gamesPlayed++;
+        drainOnAction('game');
         initNumberGuess(area);
       });
     }
@@ -2059,6 +2090,7 @@ function endWhackMole(score, area) {
     `;
     document.getElementById('wm-retry').addEventListener('click', () => {
       gameState.trackers.gamesPlayed++;
+      drainOnAction('game');
       initWhackMole(area);
     });
   }
@@ -2171,6 +2203,7 @@ function endMathChallenge(score, totalCoins, area) {
     `;
     document.getElementById('mc-retry').addEventListener('click', () => {
       gameState.trackers.gamesPlayed++;
+      drainOnAction('game');
       initMathChallenge(area);
     });
   }
@@ -2322,6 +2355,7 @@ function endBrickBreaker(bricksDestroyed, area) {
     `;
     document.getElementById('bb-retry').addEventListener('click', () => {
       gameState.trackers.gamesPlayed++;
+      drainOnAction('game');
       initBrickBreaker(area);
     });
   }
@@ -2633,6 +2667,7 @@ function spinWheel() {
   }
 
   gameState.trackers.wheelSpins = (gameState.trackers.wheelSpins || 0) + 1;
+  drainOnAction('wheel');
 
   setTimeout(() => {
     awardWheelPrize(prize);
@@ -2790,6 +2825,7 @@ function cookRecipe(recipe) {
   // 获得金币
   addCoins(recipe.value);
   gameState.trackers.totalCooked++;
+  drainOnAction('cook');
   if (!gameState.cookedRecipes.includes(recipe.id)) {
     gameState.cookedRecipes.push(recipe.id);
     gameState.trackers.uniqueRecipes = gameState.cookedRecipes.length;
@@ -2954,6 +2990,7 @@ function reelInFish(baitBonus) {
   // 加入背包
   addToInventory(caught.id, 1);
   gameState.trackers.totalFished++;
+  drainOnAction('fish');
   gameState.trackers['caught_' + caught.id] = (gameState.trackers['caught_' + caught.id] || 0) + 1;
   if (caught.rarity === 'legendary') gameState.trackers.legendaryFished++;
   gameState.trackers.totalActions++;
@@ -3501,6 +3538,7 @@ function startBattle(opponentId) {
 
   gameState.battle.inBattle = true;
   gameState.trackers.battlesStarted = (gameState.trackers.battlesStarted || 0) + 1;
+  drainOnAction('battle');
   renderBattleField();
 }
 
