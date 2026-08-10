@@ -432,6 +432,7 @@ async function init() {
 
   bindStatusActions();
   bindQuestTabs();
+  bindGardenActions();
 
   try {
     renderAll();
@@ -485,10 +486,13 @@ function catchUpTime() {
   if (elapsed <= 0) return;
 
   const s = gameState.stats;
-  s.hunger = Math.max(0, s.hunger - elapsed / 60);
-  s.happiness = Math.max(0, s.happiness - elapsed / 90);
-  s.energy = Math.max(0, s.energy - elapsed / 120);
-  s.cleanliness = Math.max(0, s.cleanliness - elapsed / 180);
+  // Offline drain: 3x faster than online so pet needs care on return
+  // But capped so stats never go below 15 from offline drain alone
+  const offlineMultiplier = 3;
+  s.hunger = Math.max(15, s.hunger - (elapsed / 288) * offlineMultiplier);
+  s.happiness = Math.max(15, s.happiness - (elapsed / 360) * offlineMultiplier);
+  s.energy = Math.max(15, s.energy - (elapsed / 432) * offlineMultiplier);
+  s.cleanliness = Math.max(15, s.cleanliness - (elapsed / 576) * offlineMultiplier);
   updateHealth();
 
   // 离线花园生长
@@ -629,10 +633,12 @@ function spendCoins(amount) {
 // ============================================================
 function tickStatus() {
   const s = gameState.stats;
-  s.hunger = Math.max(0, s.hunger - 1 / 60);
-  s.happiness = Math.max(0, s.happiness - 1 / 90);
-  s.energy = Math.max(0, s.energy - 1 / 120);
-  s.cleanliness = Math.max(0, s.cleanliness - 1 / 180);
+  // Online drain: gentle rates so the player has time to enjoy
+  // hunger: ~8 hours from 100→0, happiness: ~10h, energy: ~12h, cleanliness: ~16h
+  s.hunger = Math.max(0, s.hunger - 1 / 288);
+  s.happiness = Math.max(0, s.happiness - 1 / 360);
+  s.energy = Math.max(0, s.energy - 1 / 432);
+  s.cleanliness = Math.max(0, s.cleanliness - 1 / 576);
   updateHealth();
   renderStatus();
   gameState.lastUpdate = Date.now();
@@ -1166,6 +1172,13 @@ function selectInventoryItem(itemId) {
 let gardenMode = 'none';
 let selectedSeed = null;
 
+function bindGardenActions() {
+  const waterAllBtn = document.querySelector('[data-action="water-all"]');
+  const harvestAllBtn = document.querySelector('[data-action="harvest-all"]');
+  if (waterAllBtn) waterAllBtn.addEventListener('click', waterAllPlots);
+  if (harvestAllBtn) harvestAllBtn.addEventListener('click', harvestAllPlots);
+}
+
 function renderGarden() {
   const grid = document.getElementById('garden-grid');
   const seedList = document.getElementById('seed-list');
@@ -1393,6 +1406,32 @@ function harvestPlot(index) {
   renderInventory();
   updateQuestProgress();
   checkAchievements();
+}
+
+function waterAllPlots() {
+  let watered = 0;
+  for (let i = 0; i < 16; i++) {
+    const plot = gameState.garden[i];
+    if (plot && plot.state === 'growing' && plot.needsWater) {
+      waterPlot(i);
+      watered++;
+    }
+  }
+  if (watered === 0) showToast('没有需要浇水的作物', 'info');
+  else renderGarden();
+}
+
+function harvestAllPlots() {
+  let harvested = 0;
+  for (let i = 0; i < 16; i++) {
+    const plot = gameState.garden[i];
+    if (plot && plot.state === 'ready') {
+      harvestPlot(i);
+      harvested++;
+    }
+  }
+  if (harvested === 0) showToast('没有可收获的作物', 'info');
+  else renderGarden();
 }
 
 function tickGarden() {
@@ -2953,6 +2992,7 @@ function reelInFish(baitBonus) {
   if (castBtn) castBtn.disabled = false;
 
   renderInventory();
+  renderFishing();
   updateQuestProgress();
   checkAchievements();
 }
@@ -3666,7 +3706,6 @@ function renderBattle() {
     return;
   }
 
-  // Show opponent selection
   let html = '<div class="battle-stats">';
   html += `<div class="battle-stat-row"><span>战绩</span><span>胜${gameState.battle.battleWins} / 负${gameState.battle.battleLosses}</span></div>`;
   html += `<div class="battle-stat-row"><span>已学技能</span><span>${gameState.battle.skills.length + gameState.battle.stolenSkills.length}个</span></div>`;
@@ -3676,7 +3715,7 @@ function renderBattle() {
   html += '<div class="opponent-list">';
   for (const opp of NPC_OPPONENTS) {
     const locked = gameState.level < Math.max(1, opp.level - 2);
-    html += `<div class="opponent-card ${locked ? 'locked' : ''}" ${locked ? '' : `onclick="startBattle('${opp.id}')"`}>`;
+    html += `<div class="opponent-card ${locked ? 'locked' : ''}" ${locked ? '' : `data-opponent-id="${opp.id}"`}>`;
     html += `<div class="opponent-icon">${opp.icon}</div>`;
     html += `<div class="opponent-info">`;
     html += `<div class="opponent-name">${locked ? '???' : opp.name} <span class="opponent-level">Lv.${opp.level}</span></div>`;
@@ -3694,6 +3733,12 @@ function renderBattle() {
   html += '</div>';
 
   area.innerHTML = html;
+
+  area.querySelectorAll('.opponent-card[data-opponent-id]').forEach(card => {
+    card.addEventListener('click', () => {
+      startBattle(card.dataset.opponentId);
+    });
+  });
 }
 
 function renderBattleField() {
@@ -3734,13 +3779,12 @@ function renderBattleField() {
   }
   html += '</div>';
 
-  // Actions
   if (battleState.phase === 'player_turn') {
     html += '<div class="battle-actions">';
     html += '<div class="battle-skills">';
     pet.skills.forEach((skill, i) => {
       const disabled = skill.cooldown > 0;
-      html += `<button class="battle-skill-btn ${disabled ? 'on-cooldown' : ''}" ${disabled ? 'disabled' : `onclick="playerUseSkill(${i})"`} title="${skill.desc}">`;
+      html += `<button class="battle-skill-btn ${disabled ? 'on-cooldown' : ''}" ${disabled ? 'disabled' : ''} data-skill-index="${i}" title="${skill.desc}">`;
       html += `<span class="skill-btn-icon">${skill.icon}</span>`;
       html += `<span class="skill-btn-name">${skill.name}</span>`;
       if (disabled) html += `<span class="skill-cd">${skill.cooldown}回合</span>`;
@@ -3749,8 +3793,8 @@ function renderBattleField() {
     });
     html += '</div>';
     html += '<div class="battle-extra-actions">';
-    html += `<button class="battle-action-btn steal-btn" ${battleState.stealAttempted ? 'disabled' : ''} onclick="attemptSteal()">🎯 夺取技能</button>`;
-    html += '<button class="battle-action-btn flee-btn" onclick="fleeBattle()">🏃 逃跑</button>';
+    html += `<button class="battle-action-btn steal-btn" ${battleState.stealAttempted ? 'disabled' : ''} id="btn-steal">🎯 夺取技能</button>`;
+    html += '<button class="battle-action-btn flee-btn" id="btn-flee">🏃 逃跑</button>';
     html += '</div>';
     html += '</div>';
   } else if (battleState.phase === 'opponent_turn') {
@@ -3758,16 +3802,37 @@ function renderBattleField() {
   } else if (battleState.phase === 'victory') {
     html += '<div class="battle-result victory">';
     html += '<div class="result-title">🎉 胜利！</div>';
-    html += '<button class="battle-action-btn" onclick="battleState=null;renderBattle()">返回</button>';
+    html += '<button class="battle-action-btn" id="btn-battle-return">返回</button>';
     html += '</div>';
   } else if (battleState.phase === 'defeat') {
     html += '<div class="battle-result defeat">';
     html += '<div class="result-title">💀 失败</div>';
-    html += '<button class="battle-action-btn" onclick="battleState=null;renderBattle()">返回</button>';
+    html += '<button class="battle-action-btn" id="btn-battle-return">返回</button>';
     html += '</div>';
   }
 
   area.innerHTML = html;
+
+  area.querySelectorAll('.battle-skill-btn:not([disabled])').forEach(btn => {
+    btn.addEventListener('click', () => {
+      playerUseSkill(parseInt(btn.dataset.skillIndex));
+    });
+  });
+  const stealBtn = document.getElementById('btn-steal');
+  if (stealBtn && !stealBtn.disabled) {
+    stealBtn.addEventListener('click', attemptSteal);
+  }
+  const fleeBtn = document.getElementById('btn-flee');
+  if (fleeBtn) {
+    fleeBtn.addEventListener('click', fleeBattle);
+  }
+  const returnBtn = document.getElementById('btn-battle-return');
+  if (returnBtn) {
+    returnBtn.addEventListener('click', () => {
+      battleState = null;
+      renderBattle();
+    });
+  }
 }
 
 function renderAll() {
