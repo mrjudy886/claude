@@ -70,6 +70,10 @@
         <span class="nav-icon">&#x2694;&#xFE0F;</span>
         <span class="nav-label">对战</span>
       </button>
+      <button class="nav-tab" data-tab="chat">
+        <span class="nav-icon">&#x1F4AC;</span>
+        <span class="nav-label">聊天</span>
+      </button>
     </nav>
 
     <!-- Content Wrapper (info bar + scrollable content) -->
@@ -501,6 +505,19 @@
           <div class="section-title">&#x2694;&#xFE0F; 宠物对战</div>
           <div class="section-subtitle">训练你的宠物，挑战NPC对手！</div>
           <div class="battle-area" id="battle-area"></div>
+        </div>
+
+        <!-- ==============================
+             12. Chat Tab
+             ============================== -->
+        <div class="tab-content" id="tab-chat">
+          <div class="section-title">&#x1F4AC; 和 Clawd 聊天</div>
+          <div class="section-subtitle">和你的宠物说说话吧！</div>
+          <div class="chat-area" id="chat-area"></div>
+          <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chat-input" placeholder="输入消息..." maxlength="200">
+            <button class="chat-send-btn" id="chat-send-btn">发送</button>
+          </div>
         </div>
 
       </div><!-- /.content-area -->

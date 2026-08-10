@@ -383,6 +383,7 @@ function createDefaultState() {
       battleLog: [],
       inBattle: false,
     },
+    chatHistory: [],
     lastUpdate: Date.now(),
     firstPlayTime: Date.now(),
   };
@@ -433,6 +434,7 @@ async function init() {
   bindStatusActions();
   bindQuestTabs();
   bindGardenActions();
+  bindChat();
 
   try {
     renderAll();
@@ -477,6 +479,7 @@ function mergeState(saved) {
     wheel: { ...def.wheel, ...(saved.wheel || {}) },
     fishing: { ...def.fishing, ...(saved.fishing || {}) },
     battle: { ...(def.battle || {}), ...(saved.battle || {}), skills: saved.battle?.skills || def.battle.skills, stolenSkills: saved.battle?.stolenSkills || [] },
+    chatHistory: saved.chatHistory || [],
   };
 }
 
@@ -553,6 +556,7 @@ function bindTabs() {
         case 'cooking': renderCooking(); break;
         case 'fishing': renderFishing(); break;
         case 'battle': renderBattle(); break;
+        case 'chat': renderChat(); break;
       }
     });
   });
@@ -597,19 +601,41 @@ function getXpForLevel(level) {
   return Math.floor(100 * Math.pow(1.15, level - 1));
 }
 
-function addXp(amount) {
+function scaleXp(baseXp, sourceLevel) {
+  const playerLvl = gameState.level;
+  if (sourceLevel === undefined) sourceLevel = playerLvl;
+  const diff = sourceLevel - playerLvl;
+  let multiplier = 1;
+  if (diff >= 5) multiplier = 1.5;
+  else if (diff >= 2) multiplier = 1.2;
+  else if (diff <= -5) multiplier = 0.3;
+  else if (diff <= -3) multiplier = 0.5;
+  else if (diff <= -1) multiplier = 0.8;
+  return Math.max(1, Math.round(baseXp * multiplier));
+}
+
+function addXp(amount, sourceLevel) {
+  if (sourceLevel !== undefined) {
+    amount = scaleXp(amount, sourceLevel);
+  } else {
+    const diminish = Math.max(0.2, 1 - (gameState.level - 1) * 0.03);
+    amount = Math.max(1, Math.round(amount * diminish));
+  }
   gameState.xp += amount;
   let xpNeeded = getXpForLevel(gameState.level);
+  let leveled = false;
   while (gameState.xp >= xpNeeded) {
     gameState.xp -= xpNeeded;
     gameState.level++;
     gameState.trackers.level = gameState.level;
     gameState.trackers.levelsGained++;
+    leveled = true;
     showToast(`升级了！当前等级 ${gameState.level}`, 'achievement');
     triggerPetAnimation('game-levelup');
     xpNeeded = getXpForLevel(gameState.level);
     checkAchievements();
   }
+  if (leveled) saveGame();
   renderTopBar();
 }
 
@@ -3489,6 +3515,30 @@ const LEARNABLE_SKILLS_BY_LEVEL = [
   { level: 70, skill: { id: 'omnipotence', name: '全知全能', icon: '🌟', damage: 0, type: 'buff', cooldown: 0, maxCooldown: 6, desc: '全属性极大提升', buff: { attack: 20, defense: 20, speed: 15 } } },
 ];
 
+function getScaledLevel(opp) {
+  const playerLvl = gameState.level;
+  const baseLvl = opp.level;
+  if (playerLvl <= baseLvl) return baseLvl;
+  return baseLvl + Math.floor((playerLvl - baseLvl) * 0.6);
+}
+
+function getScaledOpponent(opp) {
+  const scaledLvl = getScaledLevel(opp);
+  const scale = scaledLvl / Math.max(1, opp.level);
+  return {
+    ...opp,
+    level: scaledLvl,
+    hp: Math.round(opp.hp * scale),
+    attack: Math.round(opp.attack * scale),
+    defense: Math.round(opp.defense * scale),
+    speed: Math.round(opp.speed * Math.min(scale, 1.5)),
+    skills: opp.skills.map(s => ({
+      ...s,
+      damage: s.damage ? Math.round(s.damage * scale) : 0,
+    })),
+  };
+}
+
 // Battle state (not persisted, per-session)
 let battleState = null;
 
@@ -3509,9 +3559,10 @@ function getBattlePetStats() {
 }
 
 function startBattle(opponentId) {
-  const opp = NPC_OPPONENTS.find(o => o.id === opponentId);
-  if (!opp) return;
+  const baseOpp = NPC_OPPONENTS.find(o => o.id === opponentId);
+  if (!baseOpp) return;
 
+  const opp = getScaledOpponent(baseOpp);
   const petStats = getBattlePetStats();
   battleState = {
     pet: { ...petStats },
@@ -3689,9 +3740,12 @@ function battleWin() {
   gameState.battle.inBattle = false;
 
   if (opp) {
-    addCoins(opp.reward.coins);
-    addXp(opp.reward.xp);
-    battleState.log.push(`🎉 胜利！获得 ${opp.reward.coins} 金币 + ${opp.reward.xp} 经验`);
+    const oppLvl = getScaledLevel(opp);
+    const scaledXp = scaleXp(opp.reward.xp, oppLvl);
+    const scaledCoins = Math.round(opp.reward.coins * (oppLvl / Math.max(1, opp.level)));
+    addCoins(scaledCoins);
+    addXp(scaledXp);
+    battleState.log.push(`🎉 胜利！获得 ${scaledCoins} 金币 + ${scaledXp} 经验`);
   }
 
   // Check for new skills learned by level
@@ -3751,13 +3805,16 @@ function renderBattle() {
 
   html += '<div class="battle-section-title">选择对手</div>';
   html += '<div class="opponent-list">';
-  for (const opp of NPC_OPPONENTS) {
-    const locked = gameState.level < Math.max(1, opp.level - 2);
-    html += `<div class="opponent-card ${locked ? 'locked' : ''}" ${locked ? '' : `data-opponent-id="${opp.id}"`}>`;
-    html += `<div class="opponent-icon">${opp.icon}</div>`;
+  for (const baseOpp of NPC_OPPONENTS) {
+    const locked = gameState.level < Math.max(1, baseOpp.level - 2);
+    const scaled = locked ? baseOpp : getScaledOpponent(baseOpp);
+    const scaledXp = locked ? 0 : scaleXp(baseOpp.reward.xp, scaled.level);
+    const scaledCoins = locked ? 0 : Math.round(baseOpp.reward.coins * (scaled.level / Math.max(1, baseOpp.level)));
+    html += `<div class="opponent-card ${locked ? 'locked' : ''}" ${locked ? '' : `data-opponent-id="${baseOpp.id}"`}>`;
+    html += `<div class="opponent-icon">${baseOpp.icon}</div>`;
     html += `<div class="opponent-info">`;
-    html += `<div class="opponent-name">${locked ? '???' : opp.name} <span class="opponent-level">Lv.${opp.level}</span></div>`;
-    html += `<div class="opponent-detail">${locked ? `需要 Lv.${Math.max(1, opp.level - 2)} 解锁` : `奖励: ${opp.reward.coins}金币 ${opp.reward.xp}经验`}</div>`;
+    html += `<div class="opponent-name">${locked ? '???' : baseOpp.name} <span class="opponent-level">Lv.${scaled.level}</span></div>`;
+    html += `<div class="opponent-detail">${locked ? `需要 Lv.${Math.max(1, baseOpp.level - 2)} 解锁` : `奖励: ${scaledCoins}金币 ${scaledXp}经验`}</div>`;
     html += '</div></div>';
   }
   html += '</div>';
@@ -3873,6 +3930,168 @@ function renderBattleField() {
   }
 }
 
+// ============================================================
+// 聊天系统
+// ============================================================
+const PET_RESPONSES = {
+  greeting: [
+    '喵~ 你好呀！(=^・ω・^=)', '嗨嗨~ 今天过得怎么样？', '主人来啦！我好想你！(｡♥‿♥｡)',
+    '哇！终于来找我玩了！', '你好呀~ 我等你好久了！', '主人！(ﾉ>ω<)ﾉ❤',
+  ],
+  hungry: [
+    '我好饿呀...能喂我吃点东西吗？(´;ω;`)', '肚子咕噜咕噜叫了...', '主人...有吃的吗？🥺',
+    '再不喂我就要饿扁了！', '食物！食物！我需要食物！(ノД`)・゜・。',
+  ],
+  happy: [
+    '嘿嘿，我现在好开心！(≧▽≦)', '今天心情超好的！', '和主人在一起就是最幸福的事～♪',
+    '我是世界上最幸福的宠物！✨', '开心到转圈圈！(ノ´ヮ`)ノ*:・ﾟ✧',
+  ],
+  tired: [
+    '好累呀...让我休息一会儿吧 (´-ω-`)', '嗯...有点困了...zzz', '能量快耗光了...',
+    '我需要补充体力...', '打了好多架...好累...',
+  ],
+  dirty: [
+    '我身上脏脏的...帮我洗澡吧！', '需要清洁一下了...(*/ω＼*)', '好像该洗澡了...闻到奇怪的味道',
+  ],
+  battle: [
+    '我变强了！再来挑战吧！(ง •̀_•́)ง', '那些NPC算什么！我都能打败它们！',
+    '训练让我越来越强了！💪', '来吧！我已经准备好战斗了！',
+  ],
+  love: [
+    '我最喜欢主人了！❤️(≧◡≦)', '主人是世界上最好的人！', '能遇到主人真好～',
+    '你是我最重要的人！(づ￣ ³￣)づ', '我会一直陪着你的！永远永远！',
+  ],
+  bored: [
+    '好无聊啊...我们去做点什么吧！', '能带我去花园看看吗？🌱', '我们来玩小游戏吧！🎮',
+    '要不要去钓鱼？我想看看鱼！🐟', '好久没对战了...手痒痒的',
+  ],
+  night: [
+    '已经很晚了呢...主人也早点休息吧 🌙', '晚安～做个好梦～zzz', '月亮好圆呀...🌕',
+  ],
+  morning: [
+    '早上好！新的一天开始了！☀️', '早安～今天也要加油哦！', '呼...刚睡醒～打个哈欠～🥱',
+  ],
+  unknown: [
+    '喵？你在说什么呀？(・・？)', '嗯嗯！虽然我不太懂但我在听！',
+    '让我想想...🤔', '喵～(歪头)', '好像很有趣的样子！',
+    '主人说的对！(虽然我不懂)', '嗯嗯！我记住了！📝',
+  ],
+};
+
+const KEYWORD_MAP = [
+  { keywords: ['你好', '嗨', 'hi', 'hello', '早', '晚上好'], category: 'greeting' },
+  { keywords: ['饿', '吃', '食物', '喂', '饭'], category: 'hungry' },
+  { keywords: ['开心', '高兴', '快乐', '棒', '好', '太好了', '赞'], category: 'happy' },
+  { keywords: ['累', '困', '休息', '睡', '能量', '疲'], category: 'tired' },
+  { keywords: ['脏', '洗', '清洁', '澡'], category: 'dirty' },
+  { keywords: ['战', '打', '对决', '挑战', '强', '攻击', '技能'], category: 'battle' },
+  { keywords: ['喜欢', '爱', '亲', '抱', '可爱', '漂亮', '帅'], category: 'love' },
+  { keywords: ['无聊', '没事', '干嘛', '做什么', '推荐', '建议'], category: 'bored' },
+  { keywords: ['晚安', '睡觉', '拜拜', '再见', 'bye'], category: 'night' },
+  { keywords: ['早安', '早上', '起床', '醒'], category: 'morning' },
+];
+
+function getPetResponse(userMsg) {
+  const msg = userMsg.toLowerCase();
+  const s = gameState.stats;
+
+  if (s.hunger < 25) {
+    if (Math.random() < 0.4) return randomFrom(PET_RESPONSES.hungry);
+  }
+  if (s.energy < 25) {
+    if (Math.random() < 0.4) return randomFrom(PET_RESPONSES.tired);
+  }
+  if (s.cleanliness < 25) {
+    if (Math.random() < 0.3) return randomFrom(PET_RESPONSES.dirty);
+  }
+
+  for (const entry of KEYWORD_MAP) {
+    if (entry.keywords.some(k => msg.includes(k))) {
+      return randomFrom(PET_RESPONSES[entry.category]);
+    }
+  }
+
+  const statusComment = [];
+  if (s.hunger > 80) statusComment.push('我现在吃得饱饱的！');
+  if (s.happiness > 80) statusComment.push('心情超好的！');
+  if (s.energy < 40) statusComment.push('不过有点累了...');
+
+  if (statusComment.length > 0 && Math.random() < 0.3) {
+    return randomFrom(PET_RESPONSES.unknown) + ' ' + randomFrom(statusComment);
+  }
+
+  return randomFrom(PET_RESPONSES.unknown);
+}
+
+function randomFrom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  if (!input) return;
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  input.value = '';
+
+  if (!gameState.chatHistory) gameState.chatHistory = [];
+  gameState.chatHistory.push({ role: 'user', text: msg, time: Date.now() });
+
+  const reply = getPetResponse(msg);
+  setTimeout(() => {
+    gameState.chatHistory.push({ role: 'pet', text: reply, time: Date.now() });
+    if (gameState.chatHistory.length > 100) {
+      gameState.chatHistory = gameState.chatHistory.slice(-80);
+    }
+    renderChat();
+    saveGame();
+  }, 300 + Math.random() * 500);
+
+  renderChat();
+  drainOnAction('quest');
+}
+
+function renderChat() {
+  const area = document.getElementById('chat-area');
+  if (!area) return;
+
+  const history = gameState.chatHistory || [];
+  let html = '';
+
+  if (history.length === 0) {
+    html = '<div class="chat-empty">和 Clawd 打个招呼吧！🐱</div>';
+  } else {
+    for (const msg of history.slice(-50)) {
+      const isUser = msg.role === 'user';
+      const timeStr = new Date(msg.time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+      html += `<div class="chat-bubble ${isUser ? 'chat-user' : 'chat-pet'}">`;
+      html += `<div class="chat-sender">${isUser ? '你' : '🐱 Clawd'}</div>`;
+      html += `<div class="chat-text">${escapeHtml(msg.text)}</div>`;
+      html += `<div class="chat-time">${timeStr}</div>`;
+      html += '</div>';
+    }
+  }
+
+  area.innerHTML = html;
+  area.scrollTop = area.scrollHeight;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function bindChat() {
+  const sendBtn = document.getElementById('chat-send-btn');
+  const input = document.getElementById('chat-input');
+  if (sendBtn) sendBtn.addEventListener('click', sendChat);
+  if (input) input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendChat();
+  });
+}
+
 function renderAll() {
   renderTopBar();
   renderStatus();
@@ -3886,9 +4105,11 @@ function renderAll() {
   renderCooking();
   renderFishing();
   renderBattle();
+  renderChat();
 }
 
 // ============================================================
 // 启动
 // ============================================================
 document.addEventListener('DOMContentLoaded', init);
+window.addEventListener('beforeunload', () => saveGame());

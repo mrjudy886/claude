@@ -89,18 +89,20 @@ function saveGameState() {
 let statDecayTimer = null;
 function startStatDecay() {
   statDecayTimer = setInterval(() => {
+    // Skip stat decay when game panel is open (game-panel.js manages its own decay)
+    if (gameWindow && !gameWindow.isDestroyed()) return;
+
     const s = gameState.stats;
-    s.hunger = Math.max(0, s.hunger - 1);
-    s.happiness = Math.max(0, s.happiness - 0.67);
-    s.energy = Math.max(0, s.energy - 0.5);
-    s.cleanliness = Math.max(0, s.cleanliness - 0.33);
+    s.hunger = Math.max(0, s.hunger - 0.5);
+    s.happiness = Math.max(0, s.happiness - 0.4);
+    s.energy = Math.max(0, s.energy - 0.3);
+    s.cleanliness = Math.max(0, s.cleanliness - 0.2);
 
     const lowCount = [s.hunger, s.happiness, s.energy, s.cleanliness].filter(v => v < 20).length;
     if (lowCount >= 2) s.health = Math.max(0, s.health - 1);
     else if (lowCount === 0 && s.health < 100) s.health = Math.min(100, s.health + 0.5);
 
     gameState.playTimeSeconds += 60;
-    broadcastState();
     checkAchievements();
 
     if (petWindow && !petWindow.isDestroyed()) {
