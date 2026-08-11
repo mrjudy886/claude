@@ -487,10 +487,10 @@ function catchUpTime() {
   // Offline drain: 0.5x of online speed (slower when offline)
   // Floor at 10 so pet isn't dead on return but still needs care
   const offMul = 0.5;
-  s.hunger = Math.max(10, s.hunger - (elapsed * 100 / 180) * offMul);
-  s.happiness = Math.max(10, s.happiness - (elapsed * 100 / 210) * offMul);
-  s.energy = Math.max(10, s.energy - (elapsed * 100 / 240) * offMul);
-  s.cleanliness = Math.max(10, s.cleanliness - (elapsed * 100 / 270) * offMul);
+  s.hunger = Math.max(10, s.hunger - (elapsed * 100 / 900) * offMul);
+  s.happiness = Math.max(10, s.happiness - (elapsed * 100 / 1080) * offMul);
+  s.energy = Math.max(10, s.energy - (elapsed * 100 / 1200) * offMul);
+  s.cleanliness = Math.max(10, s.cleanliness - (elapsed * 100 / 1500) * offMul);
   updateHealth();
 
   // 离线花园生长
@@ -664,12 +664,12 @@ function spendCoins(amount) {
 // ============================================================
 function tickStatus() {
   const s = gameState.stats;
-  // Online drain: very aggressive — 3 min cycle, player must constantly care for pet
-  // hunger: ~3min (180s), happiness: ~3.5min (210s), energy: ~4min (240s), cleanliness: ~4.5min (270s)
-  s.hunger = Math.max(0, s.hunger - 100 / 180);
-  s.happiness = Math.max(0, s.happiness - 100 / 210);
-  s.energy = Math.max(0, s.energy - 100 / 240);
-  s.cleanliness = Math.max(0, s.cleanliness - 100 / 270);
+  // Online drain: balanced — need to care for pet every ~15-20 min
+  // hunger: ~15min (900s), happiness: ~18min (1080s), energy: ~20min (1200s), cleanliness: ~25min (1500s)
+  s.hunger = Math.max(0, s.hunger - 100 / 900);
+  s.happiness = Math.max(0, s.happiness - 100 / 1080);
+  s.energy = Math.max(0, s.energy - 100 / 1200);
+  s.cleanliness = Math.max(0, s.cleanliness - 100 / 1500);
   updateHealth();
   renderStatus();
   gameState.lastUpdate = Date.now();
@@ -678,13 +678,13 @@ function tickStatus() {
 function drainOnAction(type) {
   const s = gameState.stats;
   const costs = {
-    battle:  { hunger: 10, energy: 15, happiness: -3, cleanliness: 8 },
-    fish:    { hunger: 6, energy: 8, happiness: -2, cleanliness: 5 },
-    cook:    { hunger: -5, energy: 6, happiness: -2, cleanliness: 8 },
-    game:    { hunger: 5, energy: 10, happiness: -5, cleanliness: 3 },
-    garden:  { hunger: 5, energy: 8, happiness: -2, cleanliness: 5 },
-    wheel:   { hunger: 3, energy: 5, happiness: 0, cleanliness: 2 },
-    quest:   { hunger: 4, energy: 6, happiness: -2, cleanliness: 3 },
+    battle:  { hunger: 4, energy: 6, happiness: -2, cleanliness: 3 },
+    fish:    { hunger: 2, energy: 3, happiness: -1, cleanliness: 2 },
+    cook:    { hunger: -4, energy: 3, happiness: -1, cleanliness: 4 },
+    game:    { hunger: 2, energy: 4, happiness: -3, cleanliness: 1 },
+    garden:  { hunger: 2, energy: 3, happiness: -1, cleanliness: 2 },
+    wheel:   { hunger: 1, energy: 2, happiness: 0, cleanliness: 1 },
+    quest:   { hunger: 2, energy: 3, happiness: -1, cleanliness: 1 },
   };
   const cost = costs[type] || { hunger: 1, energy: 1, happiness: 0, cleanliness: 0 };
   s.hunger = Math.max(0, s.hunger - cost.hunger);

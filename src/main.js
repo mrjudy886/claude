@@ -94,11 +94,11 @@ function startStatDecay() {
     if (gameWindow && !gameWindow.isDestroyed()) return;
 
     const s = gameState.stats;
-    // Per-minute drain matching game-panel's 3-min cycle (60s interval, so multiply by 60)
-    s.hunger = Math.max(0, s.hunger - (100 / 180) * 60);
-    s.happiness = Math.max(0, s.happiness - (100 / 210) * 60);
-    s.energy = Math.max(0, s.energy - (100 / 240) * 60);
-    s.cleanliness = Math.max(0, s.cleanliness - (100 / 270) * 60);
+    // Per-minute drain matching game-panel's balanced rates (60s interval)
+    s.hunger = Math.max(0, s.hunger - (100 / 900) * 60);
+    s.happiness = Math.max(0, s.happiness - (100 / 1080) * 60);
+    s.energy = Math.max(0, s.energy - (100 / 1200) * 60);
+    s.cleanliness = Math.max(0, s.cleanliness - (100 / 1500) * 60);
 
     const lowCount = [s.hunger, s.happiness, s.energy, s.cleanliness].filter(v => v < 20).length;
     if (lowCount >= 2) s.health = Math.max(0, s.health - 1);
