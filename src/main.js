@@ -94,10 +94,11 @@ function startStatDecay() {
     if (gameWindow && !gameWindow.isDestroyed()) return;
 
     const s = gameState.stats;
-    s.hunger = Math.max(0, s.hunger - 0.5);
-    s.happiness = Math.max(0, s.happiness - 0.4);
-    s.energy = Math.max(0, s.energy - 0.3);
-    s.cleanliness = Math.max(0, s.cleanliness - 0.2);
+    // Per-minute drain matching game-panel's 3-min cycle (60s interval, so multiply by 60)
+    s.hunger = Math.max(0, s.hunger - (100 / 180) * 60);
+    s.happiness = Math.max(0, s.happiness - (100 / 210) * 60);
+    s.energy = Math.max(0, s.energy - (100 / 240) * 60);
+    s.cleanliness = Math.max(0, s.cleanliness - (100 / 270) * 60);
 
     const lowCount = [s.hunger, s.happiness, s.energy, s.cleanliness].filter(v => v < 20).length;
     if (lowCount >= 2) s.health = Math.max(0, s.health - 1);
@@ -541,12 +542,17 @@ function createPetWindow() {
   petWindow = new BrowserWindow({
     width: PET_SIZE,
     height: PET_SIZE,
+    maxWidth: PET_SIZE,
+    maxHeight: PET_SIZE,
+    minWidth: PET_SIZE,
+    minHeight: PET_SIZE,
     x: Math.floor(screenW / 2 - PET_SIZE / 2),
     y: screenH - PET_SIZE - 20,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
     resizable: false,
+    movable: false,
     skipTaskbar: true,
     hasShadow: false,
     fullscreenable: false,
